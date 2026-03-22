@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forever Client - Генератор ключей</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .key {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            word-break: break-all;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        .copy-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        .info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 4px;
+        }
+        .info p {
+            margin: 5px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 Генератор ключей Forever Client</h1>
+        
+        <div class="form-group">
+            <label for="licenseType">Тип лицензии:</label>
+            <select id="licenseType">
+                <option value="30">30 дней - 199₽</option>
+                <option value="90">90 дней - 450₽</option>
+                <option value="lifetime">Навсегда - 600₽</option>
+                <option value="hwid_reset">Сброс HWID - 199₽</option>
+                <option value="beta">Бета доступ - 1000₽</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Имя пользователя (опционально):</label>
+            <input type="text" id="username" placeholder="Введите имя пользователя">
+        </div>
+        
+        <button class="btn" onclick="generateKey()">Сгенерировать ключ</button>
+        
+        <div class="result" id="result">
+            <h3>Ключ сгенерирован:</h3>
+            <div class="key" id="keyDisplay"></div>
+            <button class="copy-btn" onclick="copyKey()">Копировать ключ</button>
+            
+            <div class="info">
+                <p><strong>Тип:</strong> <span id="infoType"></span></p>
+                <p><strong>Срок:</strong> <span id="infoDuration"></span></p>
+                <p><strong>Пользователь:</strong> <span id="infoUser"></span></p>
+                <p><strong>Создан:</strong> <span id="infoDate"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateKey() {
+            const licenseType = document.getElementById('licenseType').value;
+            const username = document.getElementById('username').value || 'Не указан';
+            
+            // Генерация ключа
+            const prefix = {
+                '30': 'FC30',
+                '90': 'FC90',
+                'lifetime': 'FCLT',
+                'hwid_reset': 'FCHW',
+                'beta': 'FCBT'
+            }[licenseType];
+            
+            const randomPart = generateRandomString(16);
+            const key = `${prefix}-${randomPart}`;
+            
+            // Отображение результата
+            document.getElementById('keyDisplay').textContent = key;
+            document.getElementById('infoType').textContent = getTypeName(licenseType);
+            document.getElementById('infoDuration').textContent = getDuration(licenseType);
+            document.getElementById('infoUser').textContent = username;
+            document.getElementById('infoDate').textContent = new Date().toLocaleString('ru-RU');
+            document.getElementById('result').classList.add('show');
+            
+            // Сохранение в localStorage для истории
+            saveKeyToHistory(key, licenseType, username);
+        }
+        
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                if (i > 0 && i % 4 === 0) result += '-';
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        function getTypeName(type) {
+            const names = {
+                '30': '30 дней',
+                '90': '90 дней',
+                'lifetime': 'Навсегда',
+                'hwid_reset': 'Сброс HWID',
+                'beta': 'Бета доступ'
+            };
+            return names[type];
+        }
+        
+        function getDuration(type) {
+            const durations = {
+                '30': '30 дней',
+                '90': '90 дней',
+                'lifetime': 'Бессрочно',
+                'hwid_reset': 'Одноразовый',
+                'beta': 'Бессрочно'
+            };
+            return durations[type];
+        }
+        
+        function copyKey() {
+            const key = document.getElementById('keyDisplay').textContent;
+            navigator.clipboard.writeText(key).then(() => {
+                const btn = event.target;
+                btn.textContent = '✓ Скопировано!';
+                setTimeout(() => {
+                    btn.textContent = 'Копировать ключ';
+                }, 2000);
+            });
+        }
+        
+        function saveKeyToHistory(key, type, username) {
+            const history = JSON.parse(localStorage.getItem('keyHistory') || '[]');
+            history.push({
+                key: key,
+                type: type,
+                username: username,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('keyHistory', JSON.stringify(history));
+        }
+    </script>
+</body>
+</html>
