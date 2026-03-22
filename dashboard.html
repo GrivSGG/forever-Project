@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forever Client - Личный кабинет</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            padding-top: 100px;
+            padding-bottom: 60px;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-info-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        .user-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(74, 144, 226, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .info-content h3 {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .info-content p {
+            font-size: 18px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .license-section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: var(--text);
+        }
+        
+        .license-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .license-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .license-type {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .license-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .license-status.active {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+        
+        .license-status.expired {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--danger);
+        }
+        
+        .license-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .license-detail {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+        
+        .license-detail label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .license-detail value {
+            font-size: 16px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .no-license {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .no-license i {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .no-license h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .no-license p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .action-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .action-card i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .action-card h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .action-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Фон -->
+    <div class="background">
+        <div class="stars"></div>
+    </div>
+
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span>FOREVER</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Главная</a></li>
+                <li><a href="index.html#pricing">Купить</a></li>
+                <li><a href="index.html#support">Поддержка</a></li>
+            </ul>
+            <div class="nav-buttons">
+                <button class="btn-nav" onclick="auth.logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Контент -->
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Личный кабинет</h1>
+                <p style="color: var(--text-secondary);">Добро пожаловать, <span id="username"></span>!</p>
+            </div>
+
+            <!-- Информация о пользователе -->
+            <div class="user-info-card">
+                <div class="user-info-grid">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Логин</h3>
+                            <p id="userLogin">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Email</h3>
+                            <p id="userEmail">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>Дата регистрации</h3>
+                            <p id="userDate">-</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        <div class="info-content">
+                            <h3>HWID</h3>
+                            <p id="userHWID">Не привязан</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Лицензии -->
+            <div class="license-section">
+                <h2 class="section-title">Мои лицензии</h2>
+                <div id="licensesContainer">
+                    <div class="no-license">
+                        <i class="fas fa-key"></i>
+                        <h3>У вас нет активных лицензий</h3>
+                        <p>Приобретите лицензию, чтобы начать использовать Forever Client</p>
+                        <a href="index.html#pricing" class="btn-hero">
+                            <i class="fas fa-shopping-cart"></i> Купить лицензию
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Действия -->
+            <div class="license-section">
+                <h2 class="section-title">Быстрые действия</h2>
+                <div class="actions-grid">
+                    <div class="action-card" onclick="activateLicense()">
+                        <i class="fas fa-key"></i>
+                        <h3>Активировать ключ</h3>
+                        <p>Введите ключ лицензии для активации</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="downloadClient()">
+                        <i class="fas fa-download"></i>
+                        <h3>Скачать клиент</h3>
+                        <p>Загрузите последнюю версию Forever Client</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="window.location.href='index.html#support'">
+                        <i class="fas fa-headset"></i>
+                        <h3>Поддержка</h3>
+                        <p>Свяжитесь с нашей службой поддержки</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="window.location.href='index.html#pricing'">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Купить лицензию</h3>
+                        <p>Приобретите или продлите лицензию</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>FOREVER CLIENT</h3>
+                    <p>© 2025 Forever Client. Все права защищены</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно активации -->
+    <div id="activateModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeActivateModal()">&times;</span>
+            <h2>Активация лицензии</h2>
+            <form onsubmit="return handleActivation(event)">
+                <div class="form-group">
+                    <label>Ключ лицензии</label>
+                    <input type="text" id="licenseKey" placeholder="FC30-XXXX-XXXX-XXXX-XXXX" required>
+                </div>
+                <button type="submit" class="btn-modal">Активировать</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
