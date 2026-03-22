@@ -7,7 +7,7 @@ echo.
 
 echo [1/6] Настройка Git...
 git config --global user.email "your@email.com"
-git config --global user.name "Gn1u5GG"
+git config --global user.name "GrivSGG"
 
 echo [2/6] Добавление файлов...
 git add .
@@ -20,7 +20,7 @@ git branch -M main
 
 echo [5/6] Проверка удаленного репозитория...
 git remote remove origin 2>nul
-git remote add origin https://github.com/Gn1u5GG/forever-Project.git
+git remote add origin https://github.com/GrivSGG/forever-Project.git
 
 echo [6/6] Загрузка на GitHub...
 echo.
@@ -35,13 +35,13 @@ if %ERRORLEVEL% EQU 0 (
     echo ========================================
     echo.
     echo Теперь:
-    echo 1. Зайди на https://github.com/Gn1u5GG/forever-Project
+    echo 1. Зайди на https://github.com/GrivSGG/forever-Project
     echo 2. Нажми Settings
     echo 3. Найди Pages в левом меню
     echo 4. В Source выбери "main" и нажми Save
     echo.
     echo Твой сайт будет доступен по адресу:
-    echo https://Gn1u5GG.github.io/forever-Project/
+    echo https://GrivSGG.github.io/forever-Project/
     echo.
 ) else (
     echo.
