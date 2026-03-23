@@ -455,10 +455,18 @@ async function handleLogin(event) {
     event.preventDefault();
     console.log('🔵 handleLogin вызвана');
     
+    // Ждем инициализации auth если нужно
+    let attempts = 0;
+    while (!window.auth && attempts < 10) {
+        console.log('⏳ Ожидание инициализации auth...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
     const auth = window.auth;
     if (!auth) {
-        console.error('❌ window.auth не существует');
-        alert('Ошибка инициализации. Перезагрузите страницу.');
+        console.error('❌ window.auth не существует после ожидания');
+        alert('Ошибка инициализации. Перезагрузите страницу (Ctrl+F5).');
         return false;
     }
     
@@ -482,10 +490,18 @@ async function handleRegister(event) {
     event.preventDefault();
     console.log('🔵 handleRegister вызвана');
     
+    // Ждем инициализации auth если нужно
+    let attempts = 0;
+    while (!window.auth && attempts < 10) {
+        console.log('⏳ Ожидание инициализации auth...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
     const auth = window.auth;
     if (!auth) {
-        console.error('❌ window.auth не существует');
-        alert('Ошибка инициализации. Перезагрузите страницу.');
+        console.error('❌ window.auth не существует после ожидания');
+        alert('Ошибка инициализации. Перезагрузите страницу (Ctrl+F5).');
         return false;
     }
     
