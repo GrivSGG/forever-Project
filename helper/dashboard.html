@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helper Panel - Forever Client</title>
+    <title>Test Helper Panel</title>
     <style>
         * {
             margin: 0;
@@ -116,19 +116,10 @@
             font-weight: 600;
         }
         
-        .content-section {
-            display: none;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
         }
         
         .stat-card {
@@ -177,259 +168,6 @@
             font-weight: 700;
             color: #2d3436;
         }
-        
-        .section-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        
-        .section-title {
-            font-size: 24px;
-            color: #2d3436;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #636e72;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #6c5ce7;
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #e17055, #d63031);
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(225, 112, 85, 0.3);
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        .table th,
-        .table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #636e72;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-        }
-        
-        .table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .btn-action {
-            padding: 8px 12px;
-            background: rgba(74, 144, 226, 0.2);
-            border: 1px solid #6c5ce7;
-            color: #6c5ce7;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 5px;
-            font-size: 12px;
-        }
-        
-        .btn-action:hover {
-            background: #6c5ce7;
-            color: white;
-        }
-        
-        .btn-action.danger {
-            background: rgba(244, 67, 54, 0.2);
-            border-color: #F44336;
-            color: #F44336;
-        }
-        
-        .btn-action.danger:hover {
-            background: #F44336;
-            color: white;
-        }
-        
-        .key-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .key-item code {
-            background: rgba(108, 92, 231, 0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            color: #6c5ce7;
-            font-weight: 600;
-        }
-        
-        .btn-copy {
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .btn-copy:hover {
-            background: #5a4fcf;
-        }
-        
-        .no-data {
-            text-align: center;
-            color: #636e72;
-            font-style: italic;
-            padding: 40px;
-        }
-        
-        .ticket-item {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #6c5ce7;
-        }
-        
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .ticket-title {
-            font-weight: 600;
-            color: #2d3436;
-        }
-        
-        .ticket-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        
-        .status-pending { background: #ffeaa7; color: #fdcb6e; }
-        .status-reviewing { background: #74b9ff; color: white; }
-        .status-waiting_response { background: #fd79a8; color: white; }
-        .status-ready { background: #00b894; color: white; }
-        .status-closed { background: #636e72; color: white; }
-        
-        .ticket-content {
-            color: #636e72;
-            margin-bottom: 15px;
-        }
-        
-        .ticket-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .response-form {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .response-form textarea {
-            width: 100%;
-            min-height: 80px;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            resize: vertical;
-            font-family: inherit;
-        }
-        
-        .response-form textarea:focus {
-            outline: none;
-            border-color: #6c5ce7;
-        }
-        
-        .logout-btn {
-            position: absolute;
-            bottom: 20px;
-            left: 25px;
-            right: 25px;
-            background: linear-gradient(135deg, #e17055, #d63031);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(225, 112, 85, 0.3);
-        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -444,220 +182,79 @@
         </div>
         
         <nav>
-            <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+            <a href="#" class="nav-item active">
                 <i class="fas fa-home"></i>
                 <span>Обзор</span>
             </a>
-            <a href="#" class="nav-item" onclick="showSection('tickets')">
+            <a href="#" class="nav-item">
                 <i class="fas fa-ticket-alt"></i>
                 <span>Тикеты</span>
             </a>
-            <a href="#" class="nav-item" onclick="showSection('users')">
+            <a href="#" class="nav-item">
                 <i class="fas fa-users"></i>
                 <span>Пользователи</span>
             </a>
-            <a href="#" class="nav-item" onclick="showSection('keygen')">
+            <a href="#" class="nav-item">
                 <i class="fas fa-magic"></i>
                 <span>Генератор ключей</span>
             </a>
-            <a href="#" class="nav-item" onclick="showSection('bans')">
+            <a href="#" class="nav-item">
                 <i class="fas fa-ban"></i>
                 <span>Баны</span>
             </a>
         </nav>
-        
-        <button class="logout-btn" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Выйти
-        </button>
     </aside>
 
     <main class="main-content">
         <header class="admin-header">
-            <h1 id="pageTitle">Панель Хелпера</h1>
+            <h1>Панель Хелпера</h1>
             <div class="admin-user">
                 <i class="fas fa-user-cog"></i>
-                <span id="adminUsername">Helper</span>
+                <span>Helper</span>
             </div>
         </header>
 
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="content-section active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Открытых тикетов</h3>
-                        <div class="stat-value" id="openTickets">0</div>
-                    </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-ticket-alt"></i>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Пользователей</h3>
-                        <div class="stat-value" id="totalUsers">0</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Ключей создано</h3>
-                        <div class="stat-value" id="totalKeys">0</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-ban"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Активных банов</h3>
-                        <div class="stat-value" id="activeBans">0</div>
-                    </div>
+                <div class="stat-info">
+                    <h3>Открытых тикетов</h3>
+                    <div class="stat-value">0</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Tickets Section -->
-        <div id="tickets" class="content-section">
-            <div class="section-card">
-                <h2 class="section-title">Управление тикетами</h2>
-                <div id="ticketsList">
-                    <div class="no-data">Нет активных тикетов</div>
+            
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Пользователей</h3>
+                    <div class="stat-value">0</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Users Section -->
-        <div id="users" class="content-section">
-            <div class="section-card">
-                <h2 class="section-title">Пользователи</h2>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Логин</th>
-                            <th>Email</th>
-                            <th>IP адрес</th>
-                            <th>Дата регистрации</th>
-                            <th>Лицензия</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <tr>
-                            <td colspan="7" class="no-data">Нет зарегистрированных пользователей</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Key Generator Section -->
-        <div id="keygen" class="content-section">
-            <div class="section-card">
-                <h2 class="section-title">Генератор ключей</h2>
-                
-                <div class="form-group">
-                    <label for="keygenType">Тип лицензии:</label>
-                    <select id="keygenType" class="form-control">
-                        <option value="30">30 дней</option>
-                        <option value="90">90 дней</option>
-                        <option value="lifetime">Навсегда</option>
-                        <option value="hwid">Сброс HWID</option>
-                        <option value="beta">Бета доступ</option>
-                    </select>
+            
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-key"></i>
                 </div>
-                
-                <div class="form-group">
-                    <label for="keygenCount">Количество ключей:</label>
-                    <input type="number" id="keygenCount" class="form-control" min="1" max="100" value="1">
-                </div>
-                
-                <div class="form-group">
-                    <label for="keygenComment">Комментарий (необязательно):</label>
-                    <input type="text" id="keygenComment" class="form-control" placeholder="Для кого генерируется ключ">
-                </div>
-                
-                <button class="btn btn-primary" onclick="generateKeys()">
-                    <i class="fas fa-magic"></i> Сгенерировать ключи
-                </button>
-                
-                <div id="generatedKeys" style="display: none; margin-top: 30px;">
-                    <h3>Сгенерированные ключи:</h3>
-                    <div id="keysList"></div>
-                    <button class="btn btn-primary" onclick="copyAllKeys()" style="margin-top: 15px;">
-                        <i class="fas fa-copy"></i> Копировать все ключи
-                    </button>
+                <div class="stat-info">
+                    <h3>Ключей создано</h3>
+                    <div class="stat-value">0</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Bans Section -->
-        <div id="bans" class="content-section">
-            <div class="section-card">
-                <h2 class="section-title">Управление банами</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                    <div>
-                        <h3>Забанить пользователя</h3>
-                        <div class="form-group">
-                            <label for="banUsername">Логин пользователя:</label>
-                            <input type="text" id="banUsername" class="form-control" placeholder="Введите логин">
-                        </div>
-                        <div class="form-group">
-                            <label for="banDuration">Длительность:</label>
-                            <select id="banDuration" class="form-control">
-                                <option value="1">1 час</option>
-                                <option value="24">1 день</option>
-                                <option value="168">1 неделя</option>
-                                <option value="720">1 месяц</option>
-                                <option value="permanent">Навсегда</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="banReason">Причина:</label>
-                            <input type="text" id="banReason" class="form-control" placeholder="Причина бана">
-                        </div>
-                        <button class="btn btn-danger" onclick="banUser()">
-                            <i class="fas fa-ban"></i> Забанить
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <h3>Заблокировать IP</h3>
-                        <div class="form-group">
-                            <label for="banIP">IP адрес:</label>
-                            <input type="text" id="banIP" class="form-control" placeholder="192.168.1.1">
-                        </div>
-                        <div class="form-group">
-                            <label for="ipBanReason">Причина:</label>
-                            <input type="text" id="ipBanReason" class="form-control" placeholder="Причина блокировки IP">
-                        </div>
-                        <button class="btn btn-danger" onclick="banIP()">
-                            <i class="fas fa-shield-alt"></i> Заблокировать IP
-                        </button>
-                    </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-ban"></i>
                 </div>
-                
-                <div style="margin-top: 30px;">
-                    <h3>Активные баны</h3>
-                    <div id="bansList">
-                        <div class="no-data">Нет активных банов</div>
-                    </div>
+                <div class="stat-info">
+                    <h3>Активных банов</h3>
+                    <div class="stat-value">0</div>
                 </div>
             </div>
         </div>
     </main>
-
-    <script src="../auth.js"></script>
-    <script src="helper.js"></script>
 </body>
 </html>
