@@ -446,20 +446,9 @@ class AuthSystem {
     }
 }
 
-// Инициализация системы после загрузки DOM
-let auth;
-
-// Ждем загрузки DOM перед инициализацией
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAuth);
-} else {
-    initAuth();
-}
-
-function initAuth() {
-    auth = new AuthSystem();
-    console.log('✅ AuthSystem инициализирован');
-}
+// Инициализация системы сразу
+const auth = new AuthSystem();
+console.log('✅ AuthSystem создан');
 
 // Обработчики форм
 async function handleLogin(event) {
@@ -467,7 +456,8 @@ async function handleLogin(event) {
     console.log('🔵 handleLogin вызвана');
     
     if (!auth) {
-        console.error('❌ auth не инициализирован');
+        console.error('❌ auth не существует');
+        alert('Ошибка инициализации. Перезагрузите страницу.');
         return false;
     }
     
@@ -492,7 +482,8 @@ async function handleRegister(event) {
     console.log('🔵 handleRegister вызвана');
     
     if (!auth) {
-        console.error('❌ auth не инициализирован');
+        console.error('❌ auth не существует');
+        alert('Ошибка инициализации. Перезагрузите страницу.');
         return false;
     }
     
@@ -545,9 +536,10 @@ window.onclick = function(event) {
 
 // Проверка сессии при загрузке
 window.addEventListener('load', () => {
+    console.log('✅ Страница загружена, auth =', typeof auth);
+    
     if (!auth) {
-        console.error('❌ auth не инициализирован при загрузке');
-        setTimeout(() => window.location.reload(), 1000);
+        console.error('❌ auth не существует при загрузке');
         return;
     }
     
