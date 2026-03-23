@@ -141,7 +141,7 @@ class AuthSystem {
         return new Promise((resolve) => {
             setTimeout(() => {
                 resolve(true);
-            }, 500);
+            }, 100); // Уменьшил с 500 до 100мс
         });
     }
     
