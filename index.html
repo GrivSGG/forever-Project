@@ -279,30 +279,53 @@
     <section id="support" class="support">
         <div class="container">
             <h2 class="section-title">Поддержка</h2>
-            <p class="section-subtitle">Создайте тикет и мы поможем вам</p>
+            <p class="section-subtitle">Свяжитесь с нами любым удобным способом</p>
             
-            <div class="ticket-form-container">
-                <form id="ticketForm" class="ticket-form">
-                    <div class="form-group">
-                        <label>Заголовок проблемы</label>
-                        <input type="text" id="ticketSubject" placeholder="Кратко опишите проблему" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Описание проблемы</label>
-                        <textarea id="ticketMessage" placeholder="Подробно опишите вашу проблему" rows="6" required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn-hero">
-                        <i class="fas fa-paper-plane"></i> Отправить тикет
-                    </button>
-                    
-                    <p class="ticket-limit-info">Лимит: 1 тикет в день</p>
-                </form>
+            <div class="support-grid">
+                <a href="#" class="support-card discord">
+                    <i class="fab fa-discord"></i>
+                    <h3>Discord</h3>
+                    <p>Присоединяйтесь к нашему серверу</p>
+                </a>
+                <a href="#" class="support-card telegram">
+                    <i class="fab fa-telegram"></i>
+                    <h3>Telegram</h3>
+                    <p>Напишите нам в Telegram</p>
+                </a>
+                <a href="#" class="support-card youtube">
+                    <i class="fab fa-youtube"></i>
+                    <h3>YouTube</h3>
+                    <p>Смотрите наши видео</p>
+                </a>
+            </div>
+            
+            <div class="ticket-section">
+                <h3 class="ticket-section-title">Или создайте тикет поддержки</h3>
+                <p class="ticket-section-subtitle">Мы ответим в течение 24 часов</p>
                 
-                <div id="userTickets" class="user-tickets">
-                    <h3>Мои тикеты</h3>
-                    <div id="ticketsList"></div>
+                <div class="ticket-form-container">
+                    <form id="ticketForm" class="ticket-form">
+                        <div class="form-group">
+                            <label>Заголовок проблемы</label>
+                            <input type="text" id="ticketSubject" placeholder="Кратко опишите проблему" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Описание проблемы</label>
+                            <textarea id="ticketMessage" placeholder="Подробно опишите вашу проблему" rows="6" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-hero">
+                            <i class="fas fa-paper-plane"></i> Отправить тикет
+                        </button>
+                        
+                        <p class="ticket-limit-info">Лимит: 1 тикет в день</p>
+                    </form>
+                    
+                    <div id="userTickets" class="user-tickets">
+                        <h3>Мои тикеты</h3>
+                        <div id="ticketsList"></div>
+                    </div>
                 </div>
             </div>
         </div>
