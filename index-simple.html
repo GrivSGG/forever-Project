@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Forever Client - Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 40px;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #2a2a2a;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-close {
+            float: right;
+            font-size: 32px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .modal-close:hover {
+            color: white;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(74, 144, 226, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Forever Client - Простой тест</h1>
+    
+    <div>
+        <button onclick="testShowLogin()">Войти</button>
+        <button onclick="testShowRegister()">Регистрация</button>
+    </div>
+
+    <div id="result" class="result">
+        Нажмите кнопку выше...
+    </div>
+
+    <!-- Модальное окно входа -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Вход</h2>
+            <form onsubmit="return testLogin(event)">
+                <input type="text" placeholder="Логин" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Регистрация</h2>
+            <form onsubmit="return testRegister(event)">
+                <input type="text" placeholder="Логин" required>
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Пароль" required>
+                <button type="submit">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message) {
+            document.getElementById('result').innerHTML = `✅ ${message}`;
+        }
+
+        function testShowLogin() {
+            showResult('Открываю окно входа...');
+            document.getElementById('loginModal').classList.add('show');
+        }
+
+        function testShowRegister() {
+            showResult('Открываю окно регистрации...');
+            document.getElementById('registerModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function testLogin(event) {
+            event.preventDefault();
+            showResult('Форма входа работает!');
+            closeModal('loginModal');
+            return false;
+        }
+
+        function testRegister(event) {
+            event.preventDefault();
+            showResult('Форма регистрации работает!');
+            closeModal('registerModal');
+            return false;
+        }
+
+        // Закрытие по клику вне модального окна
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        }
+
+        console.log('✅ Скрипт загружен успешно');
+        console.log('✅ Функции определены:', {
+            testShowLogin: typeof testShowLogin,
+            testShowRegister: typeof testShowRegister,
+            closeModal: typeof closeModal
+        });
+    </script>
+</body>
+</html>
