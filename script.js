@@ -157,6 +157,11 @@ function handleTicketSubmit(e) {
     tickets.push(ticket);
     saveAllTickets(tickets);
     
+    // Принудительная синхронизация после создания тикета
+    if (window.syncSystem) {
+        setTimeout(() => window.syncSystem.forceSync(), 1000);
+    }
+    
     document.getElementById('ticketSubject').value = '';
     document.getElementById('ticketMessage').value = '';
     
