@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Тест кнопок</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #1a1a1a;
+            color: white;
+        }
+        button {
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Тест кнопок Forever Client</h1>
+    
+    <h2>Тест 1: Прямой вызов функций</h2>
+    <button onclick="testShowLogin()">Тест showLogin()</button>
+    <button onclick="testShowRegister()">Тест showRegister()</button>
+    
+    <h2>Тест 2: Проверка загрузки auth.js</h2>
+    <button onclick="checkAuthLoaded()">Проверить auth.js</button>
+    
+    <h2>Тест 3: Проверка функций</h2>
+    <button onclick="checkFunctions()">Проверить функции</button>
+    
+    <div class="result" id="result">
+        Результаты появятся здесь...
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        function showResult(message, isError = false) {
+            const result = document.getElementById('result');
+            result.innerHTML += `<div style="color: ${isError ? '#F44336' : '#4CAF50'}; margin: 5px 0;">
+                ${isError ? '❌' : '✅'} ${message}
+            </div>`;
+        }
+
+        function testShowLogin() {
+            try {
+                if (typeof showLogin === 'function') {
+                    showResult('Функция showLogin() существует');
+                    showLogin();
+                    showResult('Функция showLogin() вызвана успешно');
+                } else {
+                    showResult('Функция showLogin() НЕ найдена!', true);
+                }
+            } catch (error) {
+                showResult('Ошибка при вызове showLogin(): ' + error.message, true);
+            }
+        }
+
+        function testShowRegister() {
+            try {
+                if (typeof showRegister === 'function') {
+                    showResult('Функция showRegister() существует');
+                    showRegister();
+                    showResult('Функция showRegister() вызвана успешно');
+                } else {
+                    showResult('Функция showRegister() НЕ найдена!', true);
+                }
+            } catch (error) {
+                showResult('Ошибка при вызове showRegister(): ' + error.message, true);
+            }
+        }
+
+        function checkAuthLoaded() {
+            if (typeof auth !== 'undefined') {
+                showResult('auth.js загружен успешно');
+                showResult('Объект auth существует: ' + typeof auth);
+            } else {
+                showResult('auth.js НЕ загружен!', true);
+            }
+        }
+
+        function checkFunctions() {
+            const functions = [
+                'showLogin',
+                'showRegister',
+                'closeModal',
+                'handleLogin',
+                'handleRegister',
+                'buyLicense',
+                'showPricing',
+                'checkAuthAndShowPricing'
+            ];
+
+            showResult('=== Проверка функций ===');
+            functions.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    showResult(`${funcName}() - ОК`);
+                } else {
+                    showResult(`${funcName}() - НЕ НАЙДЕНА`, true);
+                }
+            });
+        }
+
+        // Автоматическая проверка при загрузке
+        window.addEventListener('load', () => {
+            showResult('=== Страница загружена ===');
+            checkAuthLoaded();
+            checkFunctions();
+        });
+    </script>
+</body>
+</html>
