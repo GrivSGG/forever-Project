@@ -446,17 +446,18 @@ class AuthSystem {
     }
 }
 
-// Инициализация системы сразу (используем var для избежания TDZ)
-var auth = new AuthSystem();
-console.log('✅ AuthSystem создан');
+// Инициализация системы сразу (глобальная переменная)
+window.auth = new AuthSystem();
+console.log('✅ AuthSystem создан и доступен глобально');
 
 // Обработчики форм
 async function handleLogin(event) {
     event.preventDefault();
     console.log('🔵 handleLogin вызвана');
     
+    const auth = window.auth;
     if (!auth) {
-        console.error('❌ auth не существует');
+        console.error('❌ window.auth не существует');
         alert('Ошибка инициализации. Перезагрузите страницу.');
         return false;
     }
@@ -481,8 +482,9 @@ async function handleRegister(event) {
     event.preventDefault();
     console.log('🔵 handleRegister вызвана');
     
+    const auth = window.auth;
     if (!auth) {
-        console.error('❌ auth не существует');
+        console.error('❌ window.auth не существует');
         alert('Ошибка инициализации. Перезагрузите страницу.');
         return false;
     }
