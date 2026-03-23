@@ -1,20 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forever Client - Админ панель</title>
+    <title>Forever Client - РђРґРјРёРЅ РїР°РЅРµР»СЊ</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="../admin/admin-style.css?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="admin-body">
-    <!-- Фон -->
+    <!-- Р¤РѕРЅ -->
     <div class="background">
         <div class="stars"></div>
     </div>
 
-    <!-- Боковая панель -->
+    <!-- Р‘РѕРєРѕРІР°СЏ РїР°РЅРµР»СЊ -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <h2>FOREVER</h2>
@@ -24,50 +24,50 @@
         <nav class="sidebar-nav">
             <a href="#" class="nav-item active" onclick="showSection('dashboard')">
                 <i class="fas fa-chart-line"></i>
-                <span>Дашборд</span>
+                <span>Р”Р°С€Р±РѕСЂРґ</span>
             </a>
             <a href="#" class="nav-item" onclick="showSection('users')">
                 <i class="fas fa-users"></i>
-                <span>Пользователи</span>
+                <span>РџРѕР»СЊР·РѕРІР°С‚РµР»Рё</span>
             </a>
             <a href="#" class="nav-item" onclick="showSection('licenses')">
                 <i class="fas fa-key"></i>
-                <span>Лицензии</span>
+                <span>Р›РёС†РµРЅР·РёРё</span>
             </a>
             <a href="#" class="nav-item" onclick="showSection('keygen')">
                 <i class="fas fa-magic"></i>
-                <span>Генератор ключей</span>
+                <span>Р“РµРЅРµСЂР°С‚РѕСЂ РєР»СЋС‡РµР№</span>
             </a>
             <a href="#" class="nav-item" onclick="showSection('stats')">
                 <i class="fas fa-chart-bar"></i>
-                <span>Статистика</span>
+                <span>РЎС‚Р°С‚РёСЃС‚РёРєР°</span>
             </a>
             <a href="#" class="nav-item" onclick="showSection('settings')">
                 <i class="fas fa-cog"></i>
-                <span>Настройки</span>
+                <span>РќР°СЃС‚СЂРѕР№РєРё</span>
             </a>
         </nav>
         
         <div class="sidebar-footer">
             <button class="btn-logout" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
-                Выйти
+                Р’С‹Р№С‚Рё
             </button>
         </div>
     </aside>
 
-    <!-- Основной контент -->
+    <!-- РћСЃРЅРѕРІРЅРѕР№ РєРѕРЅС‚РµРЅС‚ -->
     <main class="main-content">
-        <!-- Шапка -->
+        <!-- РЁР°РїРєР° -->
         <header class="admin-header">
-            <h1 id="pageTitle">Дашборд</h1>
+            <h1 id="pageTitle">Р”Р°С€Р±РѕСЂРґ</h1>
             <div class="admin-user">
                 <i class="fas fa-user-shield"></i>
                 <span id="adminUsername">admin</span>
             </div>
         </header>
 
-        <!-- Дашборд -->
+        <!-- Р”Р°С€Р±РѕСЂРґ -->
         <section id="dashboard" class="content-section active">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -75,7 +75,7 @@
                         <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>Пользователей</h3>
+                        <h3>РџРѕР»СЊР·РѕРІР°С‚РµР»РµР№</h3>
                         <p class="stat-value" id="totalUsers">0</p>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                         <i class="fas fa-key"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>Активных лицензий</h3>
+                        <h3>РђРєС‚РёРІРЅС‹С… Р»РёС†РµРЅР·РёР№</h3>
                         <p class="stat-value" id="activeLicenses">0</p>
                     </div>
                 </div>
@@ -95,8 +95,8 @@
                         <i class="fas fa-ruble-sign"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>Доход (месяц)</h3>
-                        <p class="stat-value" id="monthlyRevenue">0₽</p>
+                        <h3>Р”РѕС…РѕРґ (РјРµСЃСЏС†)</h3>
+                        <p class="stat-value" id="monthlyRevenue">0в‚Ѕ</p>
                     </div>
                 </div>
                 
@@ -105,7 +105,7 @@
                         <i class="fas fa-shopping-cart"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>Продаж (сегодня)</h3>
+                        <h3>РџСЂРѕРґР°Р¶ (СЃРµРіРѕРґРЅСЏ)</h3>
                         <p class="stat-value" id="todaySales">0</p>
                     </div>
                 </div>
@@ -113,43 +113,43 @@
             
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>Продажи за неделю</h3>
+                    <h3>РџСЂРѕРґР°Р¶Рё Р·Р° РЅРµРґРµР»СЋ</h3>
                     <canvas id="salesChart"></canvas>
                 </div>
                 
                 <div class="chart-card">
-                    <h3>Популярные тарифы</h3>
+                    <h3>РџРѕРїСѓР»СЏСЂРЅС‹Рµ С‚Р°СЂРёС„С‹</h3>
                     <canvas id="plansChart"></canvas>
                 </div>
             </div>
             
             <div class="recent-activity">
-                <h3>Последняя активность</h3>
+                <h3>РџРѕСЃР»РµРґРЅСЏСЏ Р°РєС‚РёРІРЅРѕСЃС‚СЊ</h3>
                 <div class="activity-list" id="activityList">
                     <div class="activity-item">
                         <i class="fas fa-user-plus"></i>
-                        <span>Новый пользователь зарегистрирован</span>
-                        <span class="activity-time">5 минут назад</span>
+                        <span>РќРѕРІС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ</span>
+                        <span class="activity-time">5 РјРёРЅСѓС‚ РЅР°Р·Р°Рґ</span>
                     </div>
                     <div class="activity-item">
                         <i class="fas fa-shopping-cart"></i>
-                        <span>Куплена лицензия "90 дней"</span>
-                        <span class="activity-time">15 минут назад</span>
+                        <span>РљСѓРїР»РµРЅР° Р»РёС†РµРЅР·РёСЏ "90 РґРЅРµР№"</span>
+                        <span class="activity-time">15 РјРёРЅСѓС‚ РЅР°Р·Р°Рґ</span>
                     </div>
                     <div class="activity-item">
                         <i class="fas fa-key"></i>
-                        <span>Сгенерирован новый ключ</span>
-                        <span class="activity-time">1 час назад</span>
+                        <span>РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅ РЅРѕРІС‹Р№ РєР»СЋС‡</span>
+                        <span class="activity-time">1 С‡Р°СЃ РЅР°Р·Р°Рґ</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Пользователи -->
+        <!-- РџРѕР»СЊР·РѕРІР°С‚РµР»Рё -->
         <section id="users" class="content-section">
             <div class="section-header">
-                <h2>Управление пользователями</h2>
-                <input type="text" placeholder="Поиск пользователей..." class="search-input">
+                <h2>РЈРїСЂР°РІР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё</h2>
+                <input type="text" placeholder="РџРѕРёСЃРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№..." class="search-input">
             </div>
             
             <div class="table-container">
@@ -157,28 +157,28 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Логин</th>
+                            <th>Р›РѕРіРёРЅ</th>
                             <th>Email</th>
-                            <th>Дата регистрации</th>
-                            <th>Лицензия</th>
-                            <th>Действия</th>
+                            <th>Р”Р°С‚Р° СЂРµРіРёСЃС‚СЂР°С†РёРё</th>
+                            <th>Р›РёС†РµРЅР·РёСЏ</th>
+                            <th>Р”РµР№СЃС‚РІРёСЏ</th>
                         </tr>
                     </thead>
                     <tbody id="usersTable">
                         <tr>
-                            <td colspan="6" class="no-data">Загрузка данных...</td>
+                            <td colspan="6" class="no-data">Р—Р°РіСЂСѓР·РєР° РґР°РЅРЅС‹С…...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Лицензии -->
+        <!-- Р›РёС†РµРЅР·РёРё -->
         <section id="licenses" class="content-section">
             <div class="section-header">
-                <h2>Управление лицензиями</h2>
+                <h2>РЈРїСЂР°РІР»РµРЅРёРµ Р»РёС†РµРЅР·РёСЏРјРё</h2>
                 <button class="btn-primary" onclick="showSection('keygen')">
-                    <i class="fas fa-plus"></i> Создать ключ
+                    <i class="fas fa-plus"></i> РЎРѕР·РґР°С‚СЊ РєР»СЋС‡
                 </button>
             </div>
             
@@ -186,98 +186,98 @@
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Ключ</th>
-                            <th>Тип</th>
-                            <th>Пользователь</th>
-                            <th>Дата создания</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
+                            <th>РљР»СЋС‡</th>
+                            <th>РўРёРї</th>
+                            <th>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ</th>
+                            <th>Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ</th>
+                            <th>РЎС‚Р°С‚СѓСЃ</th>
+                            <th>Р”РµР№СЃС‚РІРёСЏ</th>
                         </tr>
                     </thead>
                     <tbody id="licensesTable">
                         <tr>
-                            <td colspan="6" class="no-data">Нет данных</td>
+                            <td colspan="6" class="no-data">РќРµС‚ РґР°РЅРЅС‹С…</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Генератор ключей -->
+        <!-- Р“РµРЅРµСЂР°С‚РѕСЂ РєР»СЋС‡РµР№ -->
         <section id="keygen" class="content-section">
             <div class="keygen-container">
-                <h2>Генератор ключей</h2>
+                <h2>Р“РµРЅРµСЂР°С‚РѕСЂ РєР»СЋС‡РµР№</h2>
                 
                 <div class="keygen-form">
                     <div class="form-group">
-                        <label>Тип лицензии</label>
+                        <label>РўРёРї Р»РёС†РµРЅР·РёРё</label>
                         <select id="keygenType" class="form-control">
-                            <option value="30">30 дней - 449₽</option>
-                            <option value="90">90 дней - 450₽</option>
-                            <option value="lifetime">Навсегда - 600₽</option>
-                            <option value="hwid">Сброс HWID - 449₽</option>
-                            <option value="beta">Бета доступ - 1000₽</option>
+                            <option value="30">30 РґРЅРµР№ - 449в‚Ѕ</option>
+                            <option value="90">90 РґРЅРµР№ - 450в‚Ѕ</option>
+                            <option value="lifetime">РќР°РІСЃРµРіРґР° - 600в‚Ѕ</option>
+                            <option value="hwid">РЎР±СЂРѕСЃ HWID - 449в‚Ѕ</option>
+                            <option value="beta">Р‘РµС‚Р° РґРѕСЃС‚СѓРї - 1000в‚Ѕ</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label>Количество ключей</label>
+                        <label>РљРѕР»РёС‡РµСЃС‚РІРѕ РєР»СЋС‡РµР№</label>
                         <input type="number" id="keygenCount" class="form-control" value="1" min="1" max="100">
                     </div>
                     
                     <div class="form-group">
-                        <label>Комментарий (опционально)</label>
-                        <input type="text" id="keygenComment" class="form-control" placeholder="Для кого генерируется">
+                        <label>РљРѕРјРјРµРЅС‚Р°СЂРёР№ (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)</label>
+                        <input type="text" id="keygenComment" class="form-control" placeholder="Р”Р»СЏ РєРѕРіРѕ РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ">
                     </div>
                     
                     <button class="btn-generate" onclick="generateKeys()">
-                        <i class="fas fa-magic"></i> Сгенерировать
+                        <i class="fas fa-magic"></i> РЎРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ
                     </button>
                 </div>
                 
                 <div class="generated-keys" id="generatedKeys" style="display: none;">
-                    <h3>Сгенерированные ключи</h3>
+                    <h3>РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅС‹Рµ РєР»СЋС‡Рё</h3>
                     <div class="keys-list" id="keysList"></div>
                     <button class="btn-copy-all" onclick="copyAllKeys()">
-                        <i class="fas fa-copy"></i> Копировать все
+                        <i class="fas fa-copy"></i> РљРѕРїРёСЂРѕРІР°С‚СЊ РІСЃРµ
                     </button>
                 </div>
                 
                 <div class="keys-history">
-                    <h3>История генерации</h3>
+                    <h3>РСЃС‚РѕСЂРёСЏ РіРµРЅРµСЂР°С†РёРё</h3>
                     <div class="history-list" id="historyList">
-                        <p class="no-data">История пуста</p>
+                        <p class="no-data">РСЃС‚РѕСЂРёСЏ РїСѓСЃС‚Р°</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Статистика -->
+        <!-- РЎС‚Р°С‚РёСЃС‚РёРєР° -->
         <section id="stats" class="content-section">
-            <h2>Детальная статистика</h2>
+            <h2>Р”РµС‚Р°Р»СЊРЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°</h2>
             
             <div class="stats-filters">
-                <button class="filter-btn active" onclick="filterStats('week')">Неделя</button>
-                <button class="filter-btn" onclick="filterStats('month')">Месяц</button>
-                <button class="filter-btn" onclick="filterStats('year')">Год</button>
+                <button class="filter-btn active" onclick="filterStats('week')">РќРµРґРµР»СЏ</button>
+                <button class="filter-btn" onclick="filterStats('month')">РњРµСЃСЏС†</button>
+                <button class="filter-btn" onclick="filterStats('year')">Р“РѕРґ</button>
             </div>
             
             <div class="stats-detailed">
                 <div class="stat-detail-card">
-                    <h4>Продажи по тарифам</h4>
+                    <h4>РџСЂРѕРґР°Р¶Рё РїРѕ С‚Р°СЂРёС„Р°Рј</h4>
                     <div class="stat-bars">
                         <div class="stat-bar">
-                            <span>30 дней</span>
+                            <span>30 РґРЅРµР№</span>
                             <div class="bar"><div class="bar-fill" style="width: 45%"></div></div>
                             <span>45%</span>
                         </div>
                         <div class="stat-bar">
-                            <span>90 дней</span>
+                            <span>90 РґРЅРµР№</span>
                             <div class="bar"><div class="bar-fill" style="width: 35%"></div></div>
                             <span>35%</span>
                         </div>
                         <div class="stat-bar">
-                            <span>Навсегда</span>
+                            <span>РќР°РІСЃРµРіРґР°</span>
                             <div class="bar"><div class="bar-fill" style="width: 20%"></div></div>
                             <span>20%</span>
                         </div>
@@ -285,22 +285,22 @@
                 </div>
                 
                 <div class="stat-detail-card">
-                    <h4>География пользователей</h4>
+                    <h4>Р“РµРѕРіСЂР°С„РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№</h4>
                     <div class="geo-stats">
                         <div class="geo-item">
-                            <span>🇷🇺 Россия</span>
+                            <span>рџ‡·рџ‡є Р РѕСЃСЃРёСЏ</span>
                             <span>78%</span>
                         </div>
                         <div class="geo-item">
-                            <span>🇺🇦 Украина</span>
+                            <span>рџ‡єрџ‡¦ РЈРєСЂР°РёРЅР°</span>
                             <span>12%</span>
                         </div>
                         <div class="geo-item">
-                            <span>🇰🇿 Казахстан</span>
+                            <span>рџ‡°рџ‡ї РљР°Р·Р°С…СЃС‚Р°РЅ</span>
                             <span>6%</span>
                         </div>
                         <div class="geo-item">
-                            <span>🌍 Другие</span>
+                            <span>рџЊЌ Р”СЂСѓРіРёРµ</span>
                             <span>4%</span>
                         </div>
                     </div>
@@ -308,46 +308,46 @@
             </div>
         </section>
 
-        <!-- Настройки -->
+        <!-- РќР°СЃС‚СЂРѕР№РєРё -->
         <section id="settings" class="content-section">
-            <h2>Настройки системы</h2>
+            <h2>РќР°СЃС‚СЂРѕР№РєРё СЃРёСЃС‚РµРјС‹</h2>
             
             <div class="settings-grid">
                 <div class="settings-card">
-                    <h3>Безопасность</h3>
+                    <h3>Р‘РµР·РѕРїР°СЃРЅРѕСЃС‚СЊ</h3>
                     <div class="setting-item">
-                        <label>Максимум попыток входа</label>
+                        <label>РњР°РєСЃРёРјСѓРј РїРѕРїС‹С‚РѕРє РІС…РѕРґР°</label>
                         <input type="number" value="5" class="form-control">
                     </div>
                     <div class="setting-item">
-                        <label>Время блокировки (минуты)</label>
+                        <label>Р’СЂРµРјСЏ Р±Р»РѕРєРёСЂРѕРІРєРё (РјРёРЅСѓС‚С‹)</label>
                         <input type="number" value="15" class="form-control">
                     </div>
-                    <button class="btn-save">Сохранить</button>
+                    <button class="btn-save">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
                 </div>
                 
                 <div class="settings-card">
-                    <h3>Уведомления</h3>
+                    <h3>РЈРІРµРґРѕРјР»РµРЅРёСЏ</h3>
                     <div class="setting-item">
                         <label class="checkbox-label">
                             <input type="checkbox" checked>
-                            <span>Email уведомления о продажах</span>
+                            <span>Email СѓРІРµРґРѕРјР»РµРЅРёСЏ Рѕ РїСЂРѕРґР°Р¶Р°С…</span>
                         </label>
                     </div>
                     <div class="setting-item">
                         <label class="checkbox-label">
                             <input type="checkbox" checked>
-                            <span>Telegram уведомления</span>
+                            <span>Telegram СѓРІРµРґРѕРјР»РµРЅРёСЏ</span>
                         </label>
                     </div>
-                    <button class="btn-save">Сохранить</button>
+                    <button class="btn-save">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
                 </div>
                 
                 <div class="settings-card">
-                    <h3>Резервное копирование</h3>
-                    <p>Последний бэкап: Сегодня, 12:00</p>
+                    <h3>Р РµР·РµСЂРІРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ</h3>
+                    <p>РџРѕСЃР»РµРґРЅРёР№ Р±СЌРєР°Рї: РЎРµРіРѕРґРЅСЏ, 12:00</p>
                     <button class="btn-backup">
-                        <i class="fas fa-download"></i> Создать бэкап
+                        <i class="fas fa-download"></i> РЎРѕР·РґР°С‚СЊ Р±СЌРєР°Рї
                     </button>
                 </div>
             </div>
