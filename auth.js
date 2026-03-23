@@ -446,8 +446,8 @@ class AuthSystem {
     }
 }
 
-// Инициализация системы сразу
-const auth = new AuthSystem();
+// Инициализация системы сразу (используем var для избежания TDZ)
+var auth = new AuthSystem();
 console.log('✅ AuthSystem создан');
 
 // Обработчики форм
