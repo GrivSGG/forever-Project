@@ -452,13 +452,18 @@ const auth = new AuthSystem();
 // Обработчики форм
 async function handleLogin(event) {
     event.preventDefault();
+    console.log('🔵 handleLogin вызвана');
     
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     
+    console.log('🔵 Попытка входа:', username);
+    
     try {
         await auth.login(username, password);
+        console.log('✅ Вход успешен');
     } catch (error) {
+        console.error('❌ Ошибка входа:', error);
         auth.showNotification(error.message, 'error');
     }
     
@@ -467,11 +472,14 @@ async function handleLogin(event) {
 
 async function handleRegister(event) {
     event.preventDefault();
+    console.log('🔵 handleRegister вызвана');
     
     const username = document.getElementById('regUsername').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+    
+    console.log('🔵 Попытка регистрации:', username, email);
     
     if (password !== passwordConfirm) {
         auth.showNotification('Пароли не совпадают', 'error');
@@ -480,9 +488,11 @@ async function handleRegister(event) {
     
     try {
         await auth.register(username, email, password);
+        console.log('✅ Регистрация успешна');
         closeModal('registerModal');
         showLogin();
     } catch (error) {
+        console.error('❌ Ошибка регистрации:', error);
         auth.showNotification(error.message, 'error');
     }
     
