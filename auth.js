@@ -16,7 +16,15 @@ class AuthSystem {
             password: this.encrypt('Su6-N77-B6e-nWj')
         };
         
+        // Хелпер аккаунт (зашифрован)
+        this.helperCredentials = {
+            username: this.encrypt('Helper'),
+            password: this.encrypt('MZFeEgJY'),
+            email: 'Helper'
+        };
+        
         this.initSecurity();
+        this.initTicketSystem();
     }
     
     // Инициализация системы безопасности
@@ -222,12 +230,48 @@ class AuthSystem {
             return session;
         }
         
+        // Проверка хелпера
+        if (this.decrypt(this.helperCredentials.username) === username &&
+            this.decrypt(this.helperCredentials.password) === password) {
+            this.recordAttempt(deviceId, true);
+            const session = this.createSession(username, 'helper');
+            
+            // Отправка email уведомления
+            await this.sendEmail(
+                this.helperCredentials.email,
+                'Вход в панель хелпера',
+                `Вход в панель хелпера выполнен.\nВремя: ${new Date().toLocaleString('ru-RU')}\nУстройство: ${deviceId}`
+            );
+            
+            this.showNotification('Добро пожаловать, Хелпер!', 'success');
+            setTimeout(() => {
+                window.location.href = 'helper/dashboard.html';
+            }, 1000);
+            return session;
+        }
+        
         // Проверка обычного пользователя
         const user = this.users[username];
         if (!user || user.password !== this.hashPassword(password)) {
             this.recordAttempt(deviceId, false);
             const attemptsLeft = this.maxAttempts - (this.loginAttempts[deviceId]?.count || 0);
             throw new Error(`Неверный логин или пароль. Осталось попыток: ${attemptsLeft}`);
+        }
+        
+        // Проверка бана
+        if (user.banned) {
+            const banEnd = user.bannedUntil ? new Date(user.bannedUntil) : null;
+            if (banEnd && Date.now() < banEnd.getTime()) {
+                const timeLeft = Math.ceil((banEnd.getTime() - Date.now()) / (1000 * 60));
+                throw new Error(`Ваш аккаунт заблокирован до ${banEnd.toLocaleString('ru-RU')}. Осталось: ${timeLeft} минут.`);
+            } else if (!banEnd) {
+                throw new Error('Ваш аккаунт заблокирован навсегда. Обратитесь в поддержку.');
+            } else {
+                // Бан истек, снимаем
+                user.banned = false;
+                user.bannedUntil = null;
+                this.saveUsers();
+            }
         }
         
         this.recordAttempt(deviceId, true);
@@ -478,6 +522,8 @@ window.addEventListener('load', () => {
             loginBtn.onclick = () => {
                 if (session.role === 'admin') {
                     window.location.href = 'admin/dashboard.html';
+                } else if (session.role === 'helper') {
+                    window.location.href = 'helper/dashboard.html';
                 } else {
                     window.location.href = 'dashboard.html';
                 }
@@ -542,4 +588,120 @@ function showPricing() {
 // Проверка авторизации и показ цен
 function checkAuthAndShowPricing() {
     showPricing();
+}
+
+
+// Система тикетов
+initTicketSystem() {
+    if (!localStorage.getItem('forever_tickets')) {
+        localStorage.setItem('forever_tickets', JSON.stringify([]));
+    }
+}
+
+// Создание тикета
+createTicket(problem, description) {
+    const session = this.checkSession();
+    if (!session) {
+        throw new Error('Необходимо войти в аккаунт');
+    }
+    
+    const tickets = JSON.parse(localStorage.getItem('forever_tickets') || '[]');
+    const ticket = {
+        id: 'TKT-' + Date.now(),
+        username: session.username,
+        problem: problem,
+        description: description,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        messages: []
+    };
+    
+    tickets.push(ticket);
+    localStorage.setItem('forever_tickets', JSON.stringify(tickets));
+    
+    this.showNotification('Тикет создан успешно!', 'success');
+    return ticket;
+}
+
+// Получение тикетов пользователя
+getUserTickets(username) {
+    const tickets = JSON.parse(localStorage.getItem('forever_tickets') || '[]');
+    return tickets.filter(t => t.username === username);
+}
+
+// Получение всех тикетов (для хелпера/админа)
+getAllTickets() {
+    return JSON.parse(localStorage.getItem('forever_tickets') || '[]');
+}
+
+// Ответ на тикет
+replyToTicket(ticketId, message, author) {
+    const tickets = JSON.parse(localStorage.getItem('forever_tickets') || '[]');
+    const ticket = tickets.find(t => t.id === ticketId);
+    
+    if (!ticket) {
+        throw new Error('Тикет не найден');
+    }
+    
+    ticket.messages.push({
+        author: author,
+        message: message,
+        timestamp: new Date().toISOString()
+    });
+    
+    localStorage.setItem('forever_tickets', JSON.stringify(tickets));
+    this.showNotification('Ответ отправлен', 'success');
+}
+
+// Закрытие тикета
+closeTicket(ticketId) {
+    const tickets = JSON.parse(localStorage.getItem('forever_tickets') || '[]');
+    const ticket = tickets.find(t => t.id === ticketId);
+    
+    if (ticket) {
+        ticket.status = 'closed';
+        ticket.closedAt = new Date().toISOString();
+        localStorage.setItem('forever_tickets', JSON.stringify(tickets));
+        this.showNotification('Тикет закрыт', 'success');
+    }
+}
+
+// Бан пользователя
+banUser(username, duration = null, reason = '') {
+    const users = this.loadUsers();
+    const user = users[username];
+    
+    if (!user) {
+        throw new Error('Пользователь не найден');
+    }
+    
+    user.banned = true;
+    user.banReason = reason;
+    
+    if (duration) {
+        // duration в минутах
+        user.bannedUntil = new Date(Date.now() + duration * 60 * 1000).toISOString();
+    } else {
+        user.bannedUntil = null; // Перманентный бан
+    }
+    
+    localStorage.setItem('forever_users', JSON.stringify(users));
+    this.showNotification(`Пользователь ${username} заблокирован`, 'success');
+}
+
+// Разбан пользователя
+unbanUser(username) {
+    const users = this.loadUsers();
+    const user = users[username];
+    
+    if (!user) {
+        throw new Error('Пользователь не найден');
+    }
+    
+    user.banned = false;
+    user.bannedUntil = null;
+    user.banReason = null;
+    
+    localStorage.setItem('forever_users', JSON.stringify(users));
+    this.showNotification(`Пользователь ${username} разблокирован`, 'success');
 }

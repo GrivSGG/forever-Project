@@ -37,38 +37,65 @@ document.querySelectorAll('.feature-card').forEach((card, index) => {
 
 // Создание звезд
 function createStars() {
-    const starsContainer = document.querySelector('.stars');
-    const starsCount = 100;
+    const starsContainer = document.getElementById('starsContainer');
+    if (!starsContainer) return;
+    
+    const starsCount = 200;
     
     for (let i = 0; i < starsCount; i++) {
         const star = document.createElement('div');
         star.className = 'star';
+        
+        const size = Math.random() * 3 + 1;
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const duration = Math.random() * 3 + 2;
+        const delay = Math.random() * 3;
+        
         star.style.cssText = `
-            position: absolute;
-            width: ${Math.random() * 3}px;
-            height: ${Math.random() * 3}px;
-            background: white;
-            border-radius: 50%;
-            top: ${Math.random() * 100}%;
-            left: ${Math.random() * 100}%;
-            opacity: ${Math.random()};
-            animation: twinkle ${Math.random() * 3 + 2}s infinite;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}%;
+            top: ${y}%;
+            animation-duration: ${duration}s;
+            animation-delay: ${delay}s;
         `;
+        
         starsContainer.appendChild(star);
     }
 }
 
-// Анимация мерцания звезд
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes twinkle {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 1; }
+// Создание частиц
+function createParticles() {
+    const particlesContainer = document.getElementById('particlesContainer');
+    if (!particlesContainer) return;
+    
+    const particlesCount = 50;
+    
+    for (let i = 0; i < particlesCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 4 + 2;
+        const x = Math.random() * 100;
+        const duration = Math.random() * 10 + 15;
+        const delay = Math.random() * 10;
+        
+        particle.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}%;
+            animation-duration: ${duration}s;
+            animation-delay: ${delay}s;
+        `;
+        
+        particlesContainer.appendChild(particle);
     }
-`;
-document.head.appendChild(style);
+}
 
+// Инициализация фона
 createStars();
+createParticles();
 
 // Параллакс эффект для фона
 document.addEventListener('mousemove', (e) => {

@@ -56,21 +56,25 @@ body {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-image: 
-        radial-gradient(2px 2px at 20px 30px, white, transparent),
-        radial-gradient(2px 2px at 60px 70px, white, transparent),
-        radial-gradient(1px 1px at 50px 50px, white, transparent),
-        radial-gradient(1px 1px at 130px 80px, white, transparent),
-        radial-gradient(2px 2px at 90px 10px, white, transparent);
-    background-repeat: repeat;
-    background-size: 200px 200px;
-    animation: twinkle 5s infinite;
-    opacity: 0.5;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s infinite, float 20s infinite;
 }
 
 @keyframes twinkle {
-    0%, 100% { opacity: 0.5; }
+    0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
+}
+
+@keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-20px) translateX(10px); }
+    100% { transform: translateY(0) translateX(0); }
 }
 
 .particles {
@@ -78,6 +82,30 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(74, 144, 226, 0.6);
+    border-radius: 50%;
+    animation: particleFloat 15s infinite linear;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100px) scale(1);
+        opacity: 0;
+    }
 }
 
 /* Навигация */
