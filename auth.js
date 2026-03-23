@@ -122,8 +122,23 @@ class AuthSystem {
         localStorage.setItem('forever_users', JSON.stringify(this.users));
     }
     
+    // Отправка email уведомления (симуляция)
+    sendEmail(email, subject, message) {
+        // В реальном приложении здесь будет API запрос к серверу
+        console.log(`📧 Email отправлен на ${email}`);
+        console.log(`Тема: ${subject}`);
+        console.log(`Сообщение: ${message}`);
+        
+        // Симуляция отправки
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            }, 500);
+        });
+    }
+    
     // Регистрация
-    register(username, email, password) {
+    async register(username, email, password) {
         // Валидация
         if (username.length < 3) {
             throw new Error('Логин должен быть не менее 3 символов');
@@ -160,12 +175,24 @@ class AuthSystem {
         };
         
         this.saveUsers();
-        this.showNotification('Регистрация успешна! Теперь вы можете войти.', 'success');
+        
+        // Отправка email подтверждения
+        await this.sendEmail(
+            email,
+            'Добро пожаловать в Forever Client!',
+            `Здравствуйте, ${username}!\n\nВаш аккаунт успешно создан.\nДата регистрации: ${new Date().toLocaleString('ru-RU')}\n\nС уважением,\nКоманда Forever Client`
+        );
+        
+        this.showNotification('Регистрация успешна! На вашу почту отправлено подтверждение.', 'success');
+        
+        // Обновление статистики
+        this.updateStatistics();
+        
         return true;
     }
     
     // Вход
-    login(username, password) {
+    async login(username, password) {
         const deviceId = this.getDeviceId();
         
         // Проверка блокировки
@@ -180,6 +207,14 @@ class AuthSystem {
             this.decrypt(this.adminCredentials.password) === password) {
             this.recordAttempt(deviceId, true);
             const session = this.createSession(username, 'admin');
+            
+            // Отправка email уведомления
+            await this.sendEmail(
+                'admin@forever-client.com',
+                'Вход в админ панель',
+                `Вход в админ панель выполнен.\nВремя: ${new Date().toLocaleString('ru-RU')}\nУстройство: ${deviceId}`
+            );
+            
             this.showNotification('Добро пожаловать, Администратор!', 'success');
             setTimeout(() => {
                 window.location.href = 'admin/dashboard.html';
@@ -197,7 +232,15 @@ class AuthSystem {
         
         this.recordAttempt(deviceId, true);
         const session = this.createSession(username, user.role);
-        this.showNotification('Вход выполнен успешно!', 'success');
+        
+        // Отправка email уведомления о входе
+        await this.sendEmail(
+            user.email,
+            'Вход в аккаунт Forever Client',
+            `Здравствуйте, ${username}!\n\nВ ваш аккаунт выполнен вход.\nВремя: ${new Date().toLocaleString('ru-RU')}\nУстройство: ${deviceId}\n\nЕсли это были не вы, немедленно свяжитесь с поддержкой.\n\nС уважением,\nКоманда Forever Client`
+        );
+        
+        this.showNotification('Вход выполнен успешно! Проверьте почту.', 'success');
         
         setTimeout(() => {
             window.location.href = 'dashboard.html';
@@ -363,14 +406,14 @@ class AuthSystem {
 const auth = new AuthSystem();
 
 // Обработчики форм
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
     
     try {
-        auth.login(username, password);
+        await auth.login(username, password);
     } catch (error) {
         auth.showNotification(error.message, 'error');
     }
@@ -378,7 +421,7 @@ function handleLogin(event) {
     return false;
 }
 
-function handleRegister(event) {
+async function handleRegister(event) {
     event.preventDefault();
     
     const username = document.getElementById('regUsername').value.trim();
@@ -392,7 +435,7 @@ function handleRegister(event) {
     }
     
     try {
-        auth.register(username, email, password);
+        await auth.register(username, email, password);
         closeModal('registerModal');
         showLogin();
     } catch (error) {
@@ -441,6 +484,9 @@ window.addEventListener('load', () => {
             };
         }
     }
+    
+    // Обновление статистики
+    auth.updateStatistics();
 });
 
 // Функция покупки лицензии
@@ -476,3 +522,24 @@ function scrollToSection(sectionId) {
         originalLog.apply(console, ['🔒 Forever Client - Protected']);
     };
 })();
+
+// Показать цены (только для авторизованных)
+function showPricing() {
+    const session = auth.checkSession();
+    if (!session) {
+        auth.showNotification('Войдите в аккаунт для просмотра подписок', 'warning');
+        showLogin();
+        return;
+    }
+    
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        pricingSection.style.display = 'block';
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Проверка авторизации и показ цен
+function checkAuthAndShowPricing() {
+    showPricing();
+}

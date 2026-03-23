@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест файлов Forever Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4A90E2;
+            text-align: center;
+        }
+        .test-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success {
+            background: #4CAF50;
+            color: white;
+        }
+        .error {
+            background: #F44336;
+            color: white;
+        }
+        .warning {
+            background: #FFC107;
+            color: black;
+        }
+        img, video {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .info {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Проверка файлов Forever Client</h1>
+    
+    <div class="test-item">
+        <h3>1. Шрифт Geneva.ttf <span class="status" id="font-status">Проверка...</span></h3>
+        <p class="info">Путь: assets/fonts/Geneva.ttf</p>
+        <div id="font-test" style="font-family: 'CustomFont', Arial;">
+            Этот текст должен отображаться шрифтом Geneva
+        </div>
+    </div>
+
+    <div class="test-item">
+        <h3>2. Логотип <span class="status" id="logo-status">Проверка...</span></h3>
+        <p class="info">Путь: assets/logo.png</p>
+        <img id="logo-img" src="assets/logo.png" alt="Логотип" onerror="logoError()">
+    </div>
+
+    <div class="test-item">
+        <h3>3. Видео фон <span class="status" id="video-status">Проверка...</span></h3>
+        <p class="info">Путь: assets/background.mp4</p>
+        <video id="video-test" muted loop>
+            <source src="assets/background.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="test-item">
+        <h3>4. Favicon <span class="status" id="favicon-status">Проверка...</span></h3>
+        <p class="info">Путь: assets/favicon.ico</p>
+        <img id="favicon-img" src="assets/favicon.ico" alt="Favicon" onerror="faviconError()">
+    </div>
+
+    <div class="test-item">
+        <h3>5. Система авторизации <span class="status" id="auth-status">Проверка...</span></h3>
+        <p class="info">Проверка auth.js</p>
+        <div id="auth-info"></div>
+    </div>
+
+    <div class="test-item">
+        <h3>6. Статистика <span class="status" id="stats-status">Проверка...</span></h3>
+        <p class="info">Проверка localStorage</p>
+        <div id="stats-info"></div>
+    </div>
+
+    <button onclick="window.location.href='index.html'">Открыть главную страницу</button>
+    <button onclick="location.reload()">Обновить проверку</button>
+
+    <style>
+        @font-face {
+            font-family: 'CustomFont';
+            src: url('assets/fonts/Geneva.ttf') format('truetype');
+        }
+    </style>
+
+    <script>
+        // Проверка шрифта
+        setTimeout(() => {
+            const fontTest = document.getElementById('font-test');
+            const computedFont = window.getComputedStyle(fontTest).fontFamily;
+            const fontStatus = document.getElementById('font-status');
+            
+            if (computedFont.includes('CustomFont') || computedFont.includes('Geneva')) {
+                fontStatus.textContent = '✅ Работает';
+                fontStatus.className = 'status success';
+            } else {
+                fontStatus.textContent = '⚠️ Не загружен';
+                fontStatus.className = 'status warning';
+            }
+        }, 1000);
+
+        // Проверка логотипа
+        function logoError() {
+            const logoStatus = document.getElementById('logo-status');
+            logoStatus.textContent = '❌ Не найден';
+            logoStatus.className = 'status error';
+            document.getElementById('logo-img').style.display = 'none';
+        }
+
+        document.getElementById('logo-img').onload = function() {
+            const logoStatus = document.getElementById('logo-status');
+            logoStatus.textContent = '✅ Найден';
+            logoStatus.className = 'status success';
+        };
+
+        // Проверка видео
+        const video = document.getElementById('video-test');
+        video.onloadeddata = function() {
+            const videoStatus = document.getElementById('video-status');
+            videoStatus.textContent = '✅ Найдено';
+            videoStatus.className = 'status success';
+            video.play();
+        };
+
+        video.onerror = function() {
+            const videoStatus = document.getElementById('video-status');
+            videoStatus.textContent = '❌ Не найдено';
+            videoStatus.className = 'status error';
+        };
+
+        // Проверка favicon
+        function faviconError() {
+            const faviconStatus = document.getElementById('favicon-status');
+            faviconStatus.textContent = '❌ Не найден';
+            faviconStatus.className = 'status error';
+            document.getElementById('favicon-img').style.display = 'none';
+        }
+
+        document.getElementById('favicon-img').onload = function() {
+            const faviconStatus = document.getElementById('favicon-status');
+            faviconStatus.textContent = '✅ Найден';
+            faviconStatus.className = 'status success';
+        };
+
+        // Проверка системы авторизации
+        setTimeout(() => {
+            const authStatus = document.getElementById('auth-status');
+            const authInfo = document.getElementById('auth-info');
+            
+            if (typeof auth !== 'undefined') {
+                authStatus.textContent = '✅ Работает';
+                authStatus.className = 'status success';
+                
+                const users = localStorage.getItem('forever_users');
+                const userCount = users ? Object.keys(JSON.parse(users)).length : 0;
+                authInfo.innerHTML = `Зарегистрировано пользователей: ${userCount}`;
+            } else {
+                authStatus.textContent = '⚠️ Не загружена';
+                authStatus.className = 'status warning';
+                authInfo.innerHTML = 'Откройте index.html для проверки';
+            }
+        }, 500);
+
+        // Проверка статистики
+        setTimeout(() => {
+            const statsStatus = document.getElementById('stats-status');
+            const statsInfo = document.getElementById('stats-info');
+            
+            const users = localStorage.getItem('forever_users');
+            const downloads = localStorage.getItem('forever_downloads') || '0';
+            
+            if (users) {
+                const userCount = Object.keys(JSON.parse(users)).length;
+                let licenseCount = 0;
+                
+                for (const username in JSON.parse(users)) {
+                    const user = JSON.parse(users)[username];
+                    licenseCount += user.licenses ? user.licenses.length : 0;
+                }
+                
+                statsStatus.textContent = '✅ Работает';
+                statsStatus.className = 'status success';
+                statsInfo.innerHTML = `
+                    Пользователей: ${userCount}<br>
+                    Лицензий: ${licenseCount}<br>
+                    Скачиваний: ${downloads}
+                `;
+            } else {
+                statsStatus.textContent = '⚠️ Нет данных';
+                statsStatus.className = 'status warning';
+                statsInfo.innerHTML = 'Зарегистрируйте пользователей для проверки';
+            }
+        }, 500);
+    </script>
+</body>
+</html>

@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forever Client - Лучший Minecraft клиент</title>
+    <link rel="icon" type="image/png" href="assets/favicon.ico">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Анимированный фон -->
-    <div class="background">
-        <div class="stars"></div>
-        <div class="particles"></div>
+    <!-- Видео фон -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline id="bgVideo">
+            <source src="assets/background.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
     </div>
 
     <!-- Навигация -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
-                <img src="assets/logo.png" alt="Forever" class="logo" onerror="this.style.display='none'">
+                <img src="assets/logo.png" alt="Forever" class="logo">
                 <span>FOREVER</span>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home">Главная</a></li>
-                <li><a href="#features">Возможности</a></li>
-                <li><a href="#pricing">Купить</a></li>
+                <li><a href="#review">Обзор</a></li>
+                <li><a href="#" onclick="showPricing(); return false;">Подписки</a></li>
                 <li><a href="#support">Поддержка</a></li>
             </ul>
             <div class="nav-buttons">
@@ -32,7 +35,7 @@
                     <i class="fas fa-user"></i> Войти
                 </button>
                 <button class="btn-primary-nav" onclick="showRegister()">
-                    Личный кабинет
+                    Регистрация
                 </button>
             </div>
         </div>
@@ -51,28 +54,28 @@
                     который даст вам незабываемые впечатления от игры
                 </p>
                 <div class="hero-buttons">
-                    <button class="btn-hero" onclick="scrollToSection('pricing')">
+                    <button class="btn-hero" onclick="checkAuthAndShowPricing()">
                         <i class="fas fa-shopping-cart"></i> Купить
                     </button>
-                    <button class="btn-hero-outline" onclick="scrollToSection('features')">
+                    <button class="btn-hero-outline" onclick="scrollToSection('review')">
                         Подробнее <i class="fas fa-arrow-down"></i>
                     </button>
                 </div>
                 <div class="hero-stats">
                     <div class="stat">
                         <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-value">352,802</div>
+                        <div class="stat-value" id="totalUsersHome">0</div>
                         <div class="stat-label">Пользователей</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-icon"><i class="fas fa-download"></i></div>
-                        <div class="stat-value">14,011,712</div>
-                        <div class="stat-label">Запусков клиента</div>
+                        <div class="stat-icon"><i class="fas fa-key"></i></div>
+                        <div class="stat-value" id="totalLicensesHome">0</div>
+                        <div class="stat-label">Активных лицензий</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="stat-value">1,296</div>
-                        <div class="stat-label">Обновлений защиты</div>
+                        <div class="stat-icon"><i class="fas fa-download"></i></div>
+                        <div class="stat-value" id="totalDownloadsHome">0</div>
+                        <div class="stat-label">Скачиваний</div>
                     </div>
                 </div>
             </div>
@@ -82,13 +85,27 @@
         </div>
     </section>
 
-    <!-- Преимущества -->
-    <section id="features" class="advantages">
+    <!-- Обзор -->
+    <section id="review" class="review-section">
         <div class="container">
-            <h2 class="section-title">Наши преимущества</h2>
+            <h2 class="section-title">Обзор</h2>
             <p class="section-subtitle">
-                Мы предоставляем вам всё, что вы хотели привнести в свой любимый геймплей
+                Посмотрите наш клиент в действии
             </p>
+            
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <iframe 
+                        width="100%" 
+                        height="600" 
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                        title="Forever Client Обзор" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
             
             <div class="advantages-grid">
                 <div class="advantage-card">
@@ -113,44 +130,6 @@
                     </div>
                     <h3>Лучшая поддержка</h3>
                     <p>У нас самая лучшая поддержка, которая работает круглосуточно и всегда готова помочь вам</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Функции -->
-    <section class="features-detailed">
-        <div class="container">
-            <div class="features-grid">
-                <div class="feature-item">
-                    <div class="feature-icon">🎯</div>
-                    <h3>KillAura</h3>
-                    <p>Продвинутая система атаки с обходом античитов</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">🕷️</div>
-                    <h3>Spider</h3>
-                    <p>Подъем по стенам с Water Bucket режимом</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Speed & Fly</h3>
-                    <p>Быстрое передвижение и полет</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Космический GUI</h3>
-                    <p>Красивый интерфейс с анимациями</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Защита</h3>
-                    <p>Velocity, NoFall, AutoTotem</p>
-                </div>
-                <div class="feature-item">
-                    <div class="feature-icon">👁️</div>
-                    <h3>ESP & Визуалы</h3>
-                    <p>TargetESP, Trails, KillEffect</p>
                 </div>
             </div>
         </div>

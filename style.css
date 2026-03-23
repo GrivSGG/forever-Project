@@ -1,3 +1,11 @@
+/* Кастомный шрифт */
+@font-face {
+    font-family: 'CustomFont';
+    src: url('assets/fonts/Geneva.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /* Общие стили */
 * {
     margin: 0;
@@ -20,7 +28,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'CustomFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: var(--dark);
     color: var(--text);
     overflow-x: hidden;
@@ -885,6 +893,71 @@ body {
 
 .modal-link a:hover {
     text-decoration: underline;
+}
+
+/* Видео фон */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.7);
+}
+
+/* Скрытие секции цен по умолчанию */
+#pricing {
+    display: none;
+}
+
+/* Обзор секция */
+.review-section {
+    padding: 100px 0;
+    background: rgba(20, 20, 20, 0.5);
+}
+
+.video-container {
+    margin: 40px 0;
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(74, 144, 226, 0.3);
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
 }
 
 /* Адаптивность */
