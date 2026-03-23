@@ -1,6 +1,8 @@
 // Система аутентификации Forever Client
 // Защита от DDoS, брутфорса и взлома
 
+console.log('🔵 auth.js начал загрузку');
+
 class AuthSystem {
     constructor() {
         this.users = this.loadUsers();

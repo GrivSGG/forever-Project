@@ -377,5 +377,38 @@
 
     <script src="script.js?v=3"></script>
     <script src="auth.js?v=3"></script>
+    
+    <!-- Резервная инициализация если auth.js не загрузился -->
+    <script>
+        // Проверяем через 500мс
+        setTimeout(() => {
+            if (!window.auth) {
+                console.error('❌ КРИТИЧЕСКАЯ ОШИБКА: auth.js не загрузился!');
+                console.log('Попытка перезагрузки...');
+                
+                // Показываем уведомление пользователю
+                const notice = document.createElement('div');
+                notice.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #F44336;
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    z-index: 10000;
+                    font-family: Arial;
+                `;
+                notice.innerHTML = `
+                    <strong>Ошибка загрузки</strong><br>
+                    Нажмите Ctrl+F5 для перезагрузки<br>
+                    или <button onclick="location.reload(true)" style="margin-top:10px;padding:5px 10px;cursor:pointer;">Перезагрузить</button>
+                `;
+                document.body.appendChild(notice);
+            } else {
+                console.log('✅ auth.js загружен успешно');
+            }
+        }, 500);
+    </script>
 </body>
 </html>
