@@ -1,360 +1,318 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forever Client - Админ панель</title>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="admin-style.css">
+    <title>Панель Хелпера - Forever Client</title>
+    <link rel="icon" type="image/png" href="../assets/favicon.ico">
+    <link rel="stylesheet" href="helper-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="admin-body">
-    <!-- Фон -->
-    <div class="background">
-        <div class="stars"></div>
-    </div>
-
-    <!-- Боковая панель -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>FOREVER</h2>
-            <p>Admin Panel</p>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="#" class="nav-item active" onclick="showSection('dashboard')">
-                <i class="fas fa-chart-line"></i>
-                <span>Дашборд</span>
-            </a>
-            <a href="#" class="nav-item" onclick="showSection('users')">
-                <i class="fas fa-users"></i>
-                <span>Пользователи</span>
-            </a>
-            <a href="#" class="nav-item" onclick="showSection('licenses')">
-                <i class="fas fa-key"></i>
-                <span>Лицензии</span>
-            </a>
-            <a href="#" class="nav-item" onclick="showSection('keygen')">
-                <i class="fas fa-magic"></i>
-                <span>Генератор ключей</span>
-            </a>
-            <a href="#" class="nav-item" onclick="showSection('stats')">
-                <i class="fas fa-chart-bar"></i>
-                <span>Статистика</span>
-            </a>
-            <a href="#" class="nav-item" onclick="showSection('settings')">
-                <i class="fas fa-cog"></i>
-                <span>Настройки</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                Выйти
-            </button>
-        </div>
-    </aside>
-
-    <!-- Основной контент -->
-    <main class="main-content">
-        <!-- Шапка -->
-        <header class="admin-header">
-            <h1 id="pageTitle">Дашборд</h1>
-            <div class="admin-user">
-                <i class="fas fa-user-shield"></i>
-                <span id="adminUsername">admin</span>
-            </div>
-        </header>
-
-        <!-- Дашборд -->
-        <section id="dashboard" class="content-section active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Пользователей</h3>
-                        <p class="stat-value" id="totalUsers">0</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Активных лицензий</h3>
-                        <p class="stat-value" id="activeLicenses">0</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="fas fa-ruble-sign"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Доход (месяц)</h3>
-                        <p class="stat-value" id="monthlyRevenue">0₽</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>Продаж (сегодня)</h3>
-                        <p class="stat-value" id="todaySales">0</p>
-                    </div>
-                </div>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/logo.png" alt="Forever" class="logo">
+                <h2>HELPER PANEL</h2>
             </div>
             
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3>Продажи за неделю</h3>
-                    <canvas id="salesChart"></canvas>
-                </div>
-                
-                <div class="chart-card">
-                    <h3>Популярные тарифы</h3>
-                    <canvas id="plansChart"></canvas>
-                </div>
-            </div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" onclick="showSection('overview')">
+                    <i class="fas fa-home"></i> <span>Обзор</span>
+                </a>
+                <a href="#keygen" class="nav-item" onclick="showSection('keygen')">
+                    <i class="fas fa-key"></i> <span>Генератор ключей</span>
+                </a>
+                <a href="#tickets" class="nav-item" onclick="showSection('tickets')">
+                    <i class="fas fa-ticket-alt"></i> <span>Тикеты</span>
+                </a>
+                <a href="#users" class="nav-item" onclick="showSection('users')">
+                    <i class="fas fa-users"></i> <span>Пользователи</span>
+                </a>
+                <a href="#bans" class="nav-item" onclick="showSection('bans')">
+                    <i class="fas fa-ban"></i> <span>Баны аккаунтов</span>
+                </a>
+                <a href="#ipblock" class="nav-item" onclick="showSection('ipblock')">
+                    <i class="fas fa-shield-alt"></i> <span>Блокировка IP</span>
+                </a>
+            </nav>
             
-            <div class="recent-activity">
-                <h3>Последняя активность</h3>
-                <div class="activity-list" id="activityList">
-                    <div class="activity-item">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Новый пользователь зарегистрирован</span>
-                        <span class="activity-time">5 минут назад</span>
-                    </div>
-                    <div class="activity-item">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Куплена лицензия "90 дней"</span>
-                        <span class="activity-time">15 минут назад</span>
-                    </div>
-                    <div class="activity-item">
-                        <i class="fas fa-key"></i>
-                        <span>Сгенерирован новый ключ</span>
-                        <span class="activity-time">1 час назад</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Пользователи -->
-        <section id="users" class="content-section">
-            <div class="section-header">
-                <h2>Управление пользователями</h2>
-                <input type="text" placeholder="Поиск пользователей..." class="search-input">
-            </div>
-            
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Логин</th>
-                            <th>Email</th>
-                            <th>Дата регистрации</th>
-                            <th>Лицензия</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <tr>
-                            <td colspan="6" class="no-data">Загрузка данных...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Лицензии -->
-        <section id="licenses" class="content-section">
-            <div class="section-header">
-                <h2>Управление лицензиями</h2>
-                <button class="btn-primary" onclick="showSection('keygen')">
-                    <i class="fas fa-plus"></i> Создать ключ
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выход
                 </button>
             </div>
-            
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Ключ</th>
-                            <th>Тип</th>
-                            <th>Пользователь</th>
-                            <th>Дата создания</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="licensesTable">
-                        <tr>
-                            <td colspan="6" class="no-data">Нет данных</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        </aside>
 
-        <!-- Генератор ключей -->
-        <section id="keygen" class="content-section">
-            <div class="keygen-container">
-                <h2>Генератор ключей</h2>
-                
-                <div class="keygen-form">
+        <main class="main-content">
+            <header class="header">
+                <h1 id="sectionTitle">Панель Хелпера</h1>
+                <div class="user-info">
+                    <span id="helperName">Helper</span>
+                    <i class="fas fa-user-shield"></i>
+                </div>
+            </header>
+
+            <section id="overview" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalKeys">0</h3>
+                            <p>Сгенерировано ключей</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="openTickets">0</h3>
+                            <p>Открытых тикетов</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Всего пользователей</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon red">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="bannedUsers">0</h3>
+                            <p>Заблокировано</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="blockedIPs">0</h3>
+                            <p>Заблокировано IP</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="keygen" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-key"></i> Генератор лицензионных ключей</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Тип подписки</label>
+                            <select id="keygenType">
+                                <option value="30days">30 дней - 449₽</option>
+                                <option value="90days">90 дней - 450₽</option>
+                                <option value="lifetime">Навсегда - 600₽</option>
+                                <option value="hwid">Сброс HWID - 449₽</option>
+                                <option value="beta">Бета доступ - 1000₽</option>
+                                <option value="premium30">Premium 30д - 299₽</option>
+                                <option value="basic">Базовый - 949₽</option>
+                                <option value="alpha">ALPHA - 1049₽</option>
+                                <option value="elite">Элитный - 1549₽</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Количество ключей</label>
+                            <input type="number" id="keygenCount" value="1" min="1" max="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Комментарий (опционально)</label>
+                            <input type="text" id="keygenComment" placeholder="Для кого генерируется">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateKeys()">
+                        <i class="fas fa-magic"></i> Сгенерировать ключи
+                    </button>
+                    
+                    <div id="generatedKeys" class="generated-keys" style="display: none;">
+                        <h3>Сгенерированные ключи:</h3>
+                        <div id="keysList"></div>
+                        <button class="btn btn-success btn-small" onclick="copyAllKeys()">
+                            <i class="fas fa-copy"></i> Копировать все
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="keygen" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-key"></i> Генератор лицензионных ключей</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Тип подписки</label>
+                            <select id="keygenType">
+                                <option value="30days">30 дней - 449₽</option>
+                                <option value="90days">90 дней - 450₽</option>
+                                <option value="lifetime">Навсегда - 600₽</option>
+                                <option value="hwid">Сброс HWID - 449₽</option>
+                                <option value="beta">Бета доступ - 1000₽</option>
+                                <option value="premium30">Premium 30д - 299₽</option>
+                                <option value="basic">Базовый - 949₽</option>
+                                <option value="alpha">ALPHA - 1049₽</option>
+                                <option value="elite">Элитный - 1549₽</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Количество ключей</label>
+                            <input type="number" id="keygenCount" value="1" min="1" max="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Комментарий (опционально)</label>
+                            <input type="text" id="keygenComment" placeholder="Для кого генерируется">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateKeys()">
+                        <i class="fas fa-magic"></i> Сгенерировать ключи
+                    </button>
+                    
+                    <div id="generatedKeys" class="generated-keys" style="display: none;">
+                        <h3>Сгенерированные ключи:</h3>
+                        <div id="keysList"></div>
+                        <button class="btn btn-success btn-small" onclick="copyAllKeys()">
+                            <i class="fas fa-copy"></i> Копировать все
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tickets" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-ticket-alt"></i> Тикеты поддержки</h2>
+                    
                     <div class="form-group">
-                        <label>Тип лицензии</label>
-                        <select id="keygenType" class="form-control">
-                            <option value="30">30 дней - 449₽</option>
-                            <option value="90">90 дней - 450₽</option>
-                            <option value="lifetime">Навсегда - 600₽</option>
-                            <option value="hwid">Сброс HWID - 449₽</option>
-                            <option value="beta">Бета доступ - 1000₽</option>
+                        <select id="ticketFilter" onchange="filterTickets()">
+                            <option value="all">Все тикеты</option>
+                            <option value="open">Открытые</option>
+                            <option value="closed">Закрытые</option>
                         </select>
                     </div>
                     
+                    <div id="ticketsGrid" class="cards-grid">
+                        <p class="no-data">Нет тикетов</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="users" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-users"></i> Список пользователей</h2>
+                    
                     <div class="form-group">
-                        <label>Количество ключей</label>
-                        <input type="number" id="keygenCount" class="form-control" value="1" min="1" max="100">
+                        <input type="text" id="userSearch" placeholder="Поиск по логину или email..." onkeyup="searchUsers()">
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Логин</th>
+                                    <th>Email</th>
+                                    <th>Дата регистрации</th>
+                                    <th>Лицензии</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="6" class="no-data">Нет пользователей</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="bans" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-ban"></i> Блокировка аккаунтов</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Логин пользователя</label>
+                            <input type="text" id="banUsername" placeholder="Введите логин">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Длительность (минуты, 0 = навсегда)</label>
+                            <input type="number" id="banDuration" value="60" min="0">
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label>Комментарий (опционально)</label>
-                        <input type="text" id="keygenComment" class="form-control" placeholder="Для кого генерируется">
+                        <label>Причина блокировки</label>
+                        <textarea id="banReason" placeholder="Укажите причину блокировки аккаунта"></textarea>
                     </div>
                     
-                    <button class="btn-generate" onclick="generateKeys()">
-                        <i class="fas fa-magic"></i> Сгенерировать
+                    <button class="btn btn-danger" onclick="banUser()">
+                        <i class="fas fa-ban"></i> Заблокировать аккаунт
                     </button>
-                </div>
-                
-                <div class="generated-keys" id="generatedKeys" style="display: none;">
-                    <h3>Сгенерированные ключи</h3>
-                    <div class="keys-list" id="keysList"></div>
-                    <button class="btn-copy-all" onclick="copyAllKeys()">
-                        <i class="fas fa-copy"></i> Копировать все
-                    </button>
-                </div>
-                
-                <div class="keys-history">
-                    <h3>История генерации</h3>
-                    <div class="history-list" id="historyList">
-                        <p class="no-data">История пуста</p>
+                    
+                    <h3 style="margin-top: 30px;">Заблокированные аккаунты</h3>
+                    <div id="bannedUsersList" class="table-container">
+                        <p class="no-data">Нет заблокированных пользователей</p>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Статистика -->
-        <section id="stats" class="content-section">
-            <h2>Детальная статистика</h2>
-            
-            <div class="stats-filters">
-                <button class="filter-btn active" onclick="filterStats('week')">Неделя</button>
-                <button class="filter-btn" onclick="filterStats('month')">Месяц</button>
-                <button class="filter-btn" onclick="filterStats('year')">Год</button>
-            </div>
-            
-            <div class="stats-detailed">
-                <div class="stat-detail-card">
-                    <h4>Продажи по тарифам</h4>
-                    <div class="stat-bars">
-                        <div class="stat-bar">
-                            <span>30 дней</span>
-                            <div class="bar"><div class="bar-fill" style="width: 45%"></div></div>
-                            <span>45%</span>
+            <section id="ipblock" class="content-section">
+                <div class="form-section">
+                    <h2><i class="fas fa-shield-alt"></i> Блокировка IP адресов</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>IP адрес</label>
+                            <input type="text" id="blockIP" placeholder="192.168.1.1">
                         </div>
-                        <div class="stat-bar">
-                            <span>90 дней</span>
-                            <div class="bar"><div class="bar-fill" style="width: 35%"></div></div>
-                            <span>35%</span>
-                        </div>
-                        <div class="stat-bar">
-                            <span>Навсегда</span>
-                            <div class="bar"><div class="bar-fill" style="width: 20%"></div></div>
-                            <span>20%</span>
+                        
+                        <div class="form-group">
+                            <label>Длительность (минуты, 0 = навсегда)</label>
+                            <input type="number" id="blockIPDuration" value="60" min="0">
                         </div>
                     </div>
-                </div>
-                
-                <div class="stat-detail-card">
-                    <h4>География пользователей</h4>
-                    <div class="geo-stats">
-                        <div class="geo-item">
-                            <span>🇷🇺 Россия</span>
-                            <span>78%</span>
-                        </div>
-                        <div class="geo-item">
-                            <span>🇺🇦 Украина</span>
-                            <span>12%</span>
-                        </div>
-                        <div class="geo-item">
-                            <span>🇰🇿 Казахстан</span>
-                            <span>6%</span>
-                        </div>
-                        <div class="geo-item">
-                            <span>🌍 Другие</span>
-                            <span>4%</span>
-                        </div>
+                    
+                    <div class="form-group">
+                        <label>Причина блокировки</label>
+                        <textarea id="blockIPReason" placeholder="Укажите причину блокировки IP"></textarea>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Настройки -->
-        <section id="settings" class="content-section">
-            <h2>Настройки системы</h2>
-            
-            <div class="settings-grid">
-                <div class="settings-card">
-                    <h3>Безопасность</h3>
-                    <div class="setting-item">
-                        <label>Максимум попыток входа</label>
-                        <input type="number" value="5" class="form-control">
-                    </div>
-                    <div class="setting-item">
-                        <label>Время блокировки (минуты)</label>
-                        <input type="number" value="15" class="form-control">
-                    </div>
-                    <button class="btn-save">Сохранить</button>
-                </div>
-                
-                <div class="settings-card">
-                    <h3>Уведомления</h3>
-                    <div class="setting-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" checked>
-                            <span>Email уведомления о продажах</span>
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="checkbox-label">
-                            <input type="checkbox" checked>
-                            <span>Telegram уведомления</span>
-                        </label>
-                    </div>
-                    <button class="btn-save">Сохранить</button>
-                </div>
-                
-                <div class="settings-card">
-                    <h3>Резервное копирование</h3>
-                    <p>Последний бэкап: Сегодня, 12:00</p>
-                    <button class="btn-backup">
-                        <i class="fas fa-download"></i> Создать бэкап
+                    
+                    <button class="btn btn-danger" onclick="blockIP()">
+                        <i class="fas fa-shield-alt"></i> Заблокировать IP
                     </button>
+                    
+                    <h3 style="margin-top: 30px;">Заблокированные IP адреса</h3>
+                    <div id="blockedIPsList" class="ip-list">
+                        <p class="no-data">Нет заблокированных IP</p>
+                    </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
+
+        </main>
+    </div>
 
     <script src="../auth.js"></script>
-    <script src="admin.js"></script>
+    <script src="helper.js"></script>
 </body>
 </html>
