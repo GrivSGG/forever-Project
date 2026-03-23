@@ -1026,3 +1026,144 @@ body {
         transform: scale(1);
     }
 }
+
+
+/* Система тикетов */
+.ticket-form-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.ticket-form {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ticket-form .form-group {
+    margin-bottom: 20px;
+}
+
+.ticket-form label {
+    display: block;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: 600;
+}
+
+.ticket-form input,
+.ticket-form textarea {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.ticket-form input::placeholder,
+.ticket-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.ticket-form input:focus,
+.ticket-form textarea:focus {
+    outline: none;
+    border-color: #00d4ff;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.ticket-limit-info {
+    margin-top: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    text-align: center;
+}
+
+.user-tickets {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-tickets h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.ticket-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ticket-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ticket-item-title {
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.ticket-status {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ticket-status.pending {
+    background: #ffc107;
+    color: #000;
+}
+
+.ticket-status.reviewing {
+    background: #2196F3;
+    color: white;
+}
+
+.ticket-status.waiting_response {
+    background: #ff9800;
+    color: white;
+}
+
+.ticket-status.ready {
+    background: #4CAF50;
+    color: white;
+}
+
+.ticket-status.closed {
+    background: #9e9e9e;
+    color: white;
+}
+
+.ticket-item-message {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.ticket-item-date {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .ticket-form-container {
+        grid-template-columns: 1fr;
+    }
+}

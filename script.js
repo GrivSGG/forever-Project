@@ -108,3 +108,147 @@ document.addEventListener('mousemove', (e) => {
         star.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
     });
 });
+
+
+// Система тикетов
+function initTicketSystem() {
+    const ticketForm = document.getElementById('ticketForm');
+    if (ticketForm) {
+        ticketForm.addEventListener('submit', handleTicketSubmit);
+    }
+    
+    loadUserTickets();
+}
+
+function handleTicketSubmit(e) {
+    e.preventDefault();
+    
+    const session = window.auth ? window.auth.checkSession() : null;
+    if (!session) {
+        alert('Войдите в аккаунт для создания тикета');
+        showLogin();
+        return;
+    }
+    
+    const subject = document.getElementById('ticketSubject').value.trim();
+    const message = document.getElementById('ticketMessage').value.trim();
+    
+    if (!subject || !message) {
+        alert('Заполните все поля');
+        return;
+    }
+    
+    if (!canCreateTicket(session.username)) {
+        alert('Вы можете создать только 1 тикет в день. Попробуйте завтра.');
+        return;
+    }
+    
+    const ticket = {
+        id: generateTicketId(),
+        username: session.username,
+        subject: subject,
+        message: message,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        responses: []
+    };
+    
+    const tickets = loadAllTickets();
+    tickets.push(ticket);
+    saveAllTickets(tickets);
+    
+    document.getElementById('ticketSubject').value = '';
+    document.getElementById('ticketMessage').value = '';
+    
+    alert('Тикет успешно создан! Мы ответим вам в ближайшее время.');
+    loadUserTickets();
+}
+
+function canCreateTicket(username) {
+    const tickets = loadAllTickets();
+    const userTickets = tickets.filter(t => t.username === username);
+    
+    if (userTickets.length === 0) return true;
+    
+    const lastTicket = userTickets[userTickets.length - 1];
+    const lastTicketDate = new Date(lastTicket.createdAt);
+    const now = new Date();
+    const hoursSinceLastTicket = (now - lastTicketDate) / (1000 * 60 * 60);
+    
+    return hoursSinceLastTicket >= 24;
+}
+
+function loadAllTickets() {
+    const tickets = localStorage.getItem('forever_tickets');
+    return tickets ? JSON.parse(tickets) : [];
+}
+
+function saveAllTickets(tickets) {
+    localStorage.setItem('forever_tickets', JSON.stringify(tickets));
+}
+
+function generateTicketId() {
+    return 'ticket_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+function loadUserTickets() {
+    const session = window.auth ? window.auth.checkSession() : null;
+    const ticketsList = document.getElementById('ticketsList');
+    
+    if (!ticketsList) return;
+    
+    if (!session) {
+        ticketsList.innerHTML = '<p style="color: rgba(255,255,255,0.6);">Войдите в аккаунт для просмотра тикетов</p>';
+        return;
+    }
+    
+    const tickets = loadAllTickets();
+    const userTickets = tickets.filter(t => t.username === session.username);
+    
+    if (userTickets.length === 0) {
+        ticketsList.innerHTML = '<p style="color: rgba(255,255,255,0.6);">У вас пока нет тикетов</p>';
+        return;
+    }
+    
+    const statusNames = {
+        'pending': 'В ожидании',
+        'reviewing': 'Рассматривается',
+        'waiting_response': 'Ожидание вашего ответа',
+        'ready': 'Готова',
+        'closed': 'Закрыта'
+    };
+    
+    ticketsList.innerHTML = '';
+    userTickets.reverse().forEach(ticket => {
+        const ticketItem = document.createElement('div');
+        ticketItem.className = 'ticket-item';
+        ticketItem.innerHTML = `
+            <div class="ticket-item-header">
+                <div class="ticket-item-title">${ticket.subject}</div>
+                <div class="ticket-status ${ticket.status}">${statusNames[ticket.status] || ticket.status}</div>
+            </div>
+            <div class="ticket-item-message">${ticket.message}</div>
+            <div class="ticket-item-date">Создан: ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</div>
+            ${ticket.responses && ticket.responses.length > 0 ? `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <strong style="color: white;">Ответы:</strong>
+                    ${ticket.responses.map(r => `
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                            <div style="color: #00d4ff; font-weight: 600;">${r.from}</div>
+                            <div style="color: rgba(255,255,255,0.8);">${r.message}</div>
+                            <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px;">${new Date(r.date).toLocaleString('ru-RU')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+        `;
+        ticketsList.appendChild(ticketItem);
+    });
+}
+
+// Инициализация при загрузке
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTicketSystem);
+} else {
+    initTicketSystem();
+}
