@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Helper Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+        }
+        
+        .sidebar-header {
+            padding: 30px 25px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 16px;
+            color: #6c5ce7;
+            margin-bottom: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            color: #74b9ff;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 25px;
+            color: #636e72;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: #f8f9fa;
+            color: #6c5ce7;
+            border-left-color: #6c5ce7;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+        
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-header h1 {
+            font-size: 28px;
+            color: #2d3436;
+            font-weight: 700;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #6c5ce7;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .stat-icon.blue { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+        .stat-icon.green { background: linear-gradient(135deg, #00b894, #00a085); }
+        .stat-icon.purple { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .stat-icon.orange { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+        
+        .stat-info h3 {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-circle">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <h2>HELPER PANEL</h2>
+            <p>Панель Хелпера</p>
+        </div>
+        
+        <nav>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Обзор</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Тикеты</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Пользователи</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-magic"></i>
+                <span>Генератор ключей</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-ban"></i>
+                <span>Баны</span>
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="admin-header">
+            <h1>Панель Хелпера</h1>
+            <div class="admin-user">
+                <i class="fas fa-user-cog"></i>
+                <span>Helper</span>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Открытых тикетов</h3>
+                    <div class="stat-value">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Пользователей</h3>
+                    <div class="stat-value">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Ключей создано</h3>
+                    <div class="stat-value">0</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Активных банов</h3>
+                    <div class="stat-value">0</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
