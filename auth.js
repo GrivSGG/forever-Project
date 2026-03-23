@@ -404,6 +404,67 @@ class AuthSystem {
         }, 1000);
     }
     
+    // Инициализация системы тикетов
+    initTicketSystem() {
+        // Заглушка для системы тикетов
+        this.tickets = [];
+    }
+    
+    // Обновление статистики
+    updateStatistics() {
+        // Подсчет реальных пользователей
+        const totalUsers = Object.keys(this.users).length;
+        
+        // Подсчет активных лицензий
+        let totalLicenses = 0;
+        for (const username in this.users) {
+            const user = this.users[username];
+            if (user.licenses && user.licenses.length > 0) {
+                totalLicenses += user.licenses.filter(license => {
+                    if (license.type === 'lifetime') return true;
+                    if (license.expiresAt) {
+                        return new Date(license.expiresAt) > new Date();
+                    }
+                    return false;
+                }).length;
+            }
+        }
+        
+        // Подсчет скачиваний (симуляция)
+        const totalDownloads = totalUsers * 2; // Примерно 2 скачивания на пользователя
+        
+        // Обновление на главной странице
+        const totalUsersHome = document.getElementById('totalUsersHome');
+        const totalLicensesHome = document.getElementById('totalLicensesHome');
+        const totalDownloadsHome = document.getElementById('totalDownloadsHome');
+        
+        if (totalUsersHome) {
+            this.animateValue(totalUsersHome, 0, totalUsers, 2000);
+        }
+        if (totalLicensesHome) {
+            this.animateValue(totalLicensesHome, 0, totalLicenses, 2000);
+        }
+        if (totalDownloadsHome) {
+            this.animateValue(totalDownloadsHome, 0, totalDownloads, 2000);
+        }
+    }
+    
+    // Анимация чисел
+    animateValue(element, start, end, duration) {
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16);
+    }
+    
     // Уведомления
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
@@ -452,8 +513,8 @@ class AuthSystem {
 window.auth = new AuthSystem();
 console.log('✅ AuthSystem создан и доступен глобально');
 
-// Обработчики форм
-async function handleLogin(event) {
+// Обработчики форм - ГЛОБАЛЬНЫЕ ФУНКЦИИ
+window.handleLogin = async function(event) {
     event.preventDefault();
     console.log('🔵 handleLogin вызвана');
     
@@ -488,7 +549,7 @@ async function handleLogin(event) {
     return false;
 }
 
-async function handleRegister(event) {
+window.handleRegister = async function(event) {
     event.preventDefault();
     console.log('🔵 handleRegister вызвана');
     
@@ -532,18 +593,18 @@ async function handleRegister(event) {
     return false;
 }
 
-// Модальные окна
-function showLogin() {
+// Модальные окна - ГЛОБАЛЬНЫЕ ФУНКЦИИ
+window.showLogin = function() {
     closeModal('registerModal');
     document.getElementById('loginModal').classList.add('show');
 }
 
-function showRegister() {
+window.showRegister = function() {
     closeModal('loginModal');
     document.getElementById('registerModal').classList.add('show');
 }
 
-function closeModal(modalId) {
+window.closeModal = function(modalId) {
     document.getElementById(modalId).classList.remove('show');
 }
 
@@ -585,8 +646,8 @@ window.addEventListener('load', () => {
     auth.updateStatistics();
 });
 
-// Функция покупки лицензии
-function buyLicense(type) {
+// Функция покупки лицензии - ГЛОБАЛЬНАЯ
+window.buyLicense = function(type) {
     const session = auth.checkSession();
     if (!session) {
         auth.showNotification('Войдите в аккаунт для покупки', 'warning');
@@ -603,8 +664,8 @@ function buyLicense(type) {
     }, 1500);
 }
 
-// Плавная прокрутка
-function scrollToSection(sectionId) {
+// Плавная прокрутка - ГЛОБАЛЬНАЯ
+window.scrollToSection = function(sectionId) {
     const section = document.getElementById(sectionId);
     if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
@@ -619,8 +680,8 @@ function scrollToSection(sectionId) {
     };
 })();
 
-// Показать цены (только для авторизованных)
-function showPricing() {
+// Показать цены (только для авторизованных) - ГЛОБАЛЬНАЯ
+window.showPricing = function() {
     const session = auth.checkSession();
     if (!session) {
         auth.showNotification('Войдите в аккаунт для просмотра подписок', 'warning');
@@ -635,7 +696,7 @@ function showPricing() {
     }
 }
 
-// Проверка авторизации и показ цен
-function checkAuthAndShowPricing() {
+// Проверка авторизации и показ цен - ГЛОБАЛЬНАЯ
+window.checkAuthAndShowPricing = function() {
     showPricing();
 }
