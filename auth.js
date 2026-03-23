@@ -446,13 +446,30 @@ class AuthSystem {
     }
 }
 
-// Инициализация системы
-const auth = new AuthSystem();
+// Инициализация системы после загрузки DOM
+let auth;
+
+// Ждем загрузки DOM перед инициализацией
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+} else {
+    initAuth();
+}
+
+function initAuth() {
+    auth = new AuthSystem();
+    console.log('✅ AuthSystem инициализирован');
+}
 
 // Обработчики форм
 async function handleLogin(event) {
     event.preventDefault();
     console.log('🔵 handleLogin вызвана');
+    
+    if (!auth) {
+        console.error('❌ auth не инициализирован');
+        return false;
+    }
     
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -473,6 +490,11 @@ async function handleLogin(event) {
 async function handleRegister(event) {
     event.preventDefault();
     console.log('🔵 handleRegister вызвана');
+    
+    if (!auth) {
+        console.error('❌ auth не инициализирован');
+        return false;
+    }
     
     const username = document.getElementById('regUsername').value.trim();
     const email = document.getElementById('regEmail').value.trim();
@@ -523,6 +545,12 @@ window.onclick = function(event) {
 
 // Проверка сессии при загрузке
 window.addEventListener('load', () => {
+    if (!auth) {
+        console.error('❌ auth не инициализирован при загрузке');
+        setTimeout(() => window.location.reload(), 1000);
+        return;
+    }
+    
     const session = auth.checkSession();
     if (session) {
         // Пользователь уже авторизован
