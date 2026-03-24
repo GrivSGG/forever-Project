@@ -16,6 +16,20 @@ function createBackground() {
     }
 }
 
+// Select license type
+function selectLicenseType(type) {
+    // Remove active class from all buttons
+    document.querySelectorAll('.license-type-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Add active class to selected button
+    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    
+    // Update hidden input
+    document.getElementById('keyType').value = type;
+}
+
 // Firebase initialization
 let db;
 let usersData = {};
@@ -471,17 +485,25 @@ async function deleteUser(username) {
 
 // Close ticket
 async function closeTicket(ticketId) {
-    if (!confirm('Закрыть этот тикет?')) {
+    if (!confirm('Закрыть этот тикет? Он будет удален из базы данных.')) {
         return;
     }
     
     try {
+        // Delete from Firestore
         await db.collection('tickets').doc(ticketId).delete();
+        
+        // Remove from local array
+        ticketsData = ticketsData.filter(t => t.id !== ticketId);
+        
+        // Re-render
+        renderTickets();
+        updateStats();
+        
         showNotification('Тикет закрыт и удален', 'success');
-        await loadAllData();
     } catch (error) {
         console.error('❌ Ошибка закрытия тикета:', error);
-        showNotification('Ошибка закрытия тикета', 'error');
+        showNotification('Ошибка закрытия тикета: ' + error.message, 'error');
     }
 }
 

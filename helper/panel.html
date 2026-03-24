@@ -346,7 +346,50 @@
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 30px;
-            max-width: 600px;
+            max-width: 800px;
+        }
+        
+        .license-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .license-type-btn {
+            padding: 20px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .license-type-btn:hover {
+            background: rgba(74, 144, 226, 0.1);
+            border-color: #4A90E2;
+            transform: translateY(-2px);
+        }
+        
+        .license-type-btn.active {
+            background: rgba(74, 144, 226, 0.2);
+            border-color: #4A90E2;
+            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+        }
+        
+        .license-type-btn i {
+            font-size: 24px;
+            color: #4A90E2;
+        }
+        
+        .license-type-btn span {
+            font-size: 14px;
+            font-weight: 600;
         }
         
         .generated-keys {
@@ -506,14 +549,33 @@
                     <h3>Создать ключи</h3>
                     <div class="form-group">
                         <label>Тип лицензии:</label>
-                        <select id="keyType" class="form-control">
-                            <option value="1day">1 день</option>
-                            <option value="7days">7 дней</option>
-                            <option value="30days">30 дней</option>
-                            <option value="90days">90 дней</option>
-                            <option value="beta">Бета доступ</option>
-                            <option value="lifetime">Навсегда</option>
-                        </select>
+                        <div class="license-types">
+                            <div class="license-type-btn active" data-type="1day" onclick="selectLicenseType('1day')">
+                                <i class="fas fa-clock"></i>
+                                <span>1 день</span>
+                            </div>
+                            <div class="license-type-btn" data-type="7days" onclick="selectLicenseType('7days')">
+                                <i class="fas fa-calendar-week"></i>
+                                <span>7 дней</span>
+                            </div>
+                            <div class="license-type-btn" data-type="30days" onclick="selectLicenseType('30days')">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>30 дней</span>
+                            </div>
+                            <div class="license-type-btn" data-type="90days" onclick="selectLicenseType('90days')">
+                                <i class="fas fa-calendar"></i>
+                                <span>90 дней</span>
+                            </div>
+                            <div class="license-type-btn" data-type="beta" onclick="selectLicenseType('beta')">
+                                <i class="fas fa-flask"></i>
+                                <span>Бета</span>
+                            </div>
+                            <div class="license-type-btn" data-type="lifetime" onclick="selectLicenseType('lifetime')">
+                                <i class="fas fa-infinity"></i>
+                                <span>Навсегда</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="keyType" value="1day">
                     </div>
                     <div class="form-group">
                         <label>Количество (1-100):</label>
