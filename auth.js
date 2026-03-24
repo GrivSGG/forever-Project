@@ -722,3 +722,122 @@ window.showPricing = function() {
 window.checkAuthAndShowPricing = function() {
     showPricing();
 }
+
+
+// Глобальные функции для модальных окон
+function showLogin() {
+    closeModal('registerModal');
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function showRegister() {
+    closeModal('loginModal');
+    const modal = document.getElementById('registerModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Закрытие модальных окон по клику вне их
+window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+    }
+});
+
+// Обработчики форм
+function handleLogin(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!username || !password) {
+        alert('Заполните все поля');
+        return false;
+    }
+    
+    console.log('🔵 Попытка входа:', username);
+    
+    if (window.auth) {
+        const result = window.auth.login(username, password);
+        if (result.success) {
+            alert('Вход выполнен успешно!');
+            closeModal('loginModal');
+            updateUIAfterLogin();
+        } else {
+            alert(result.message || 'Неверный логин или пароль');
+        }
+    }
+    
+    return false;
+}
+
+function handleRegister(event) {
+    event.preventDefault();
+    
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+    
+    if (!username || !email || !password || !passwordConfirm) {
+        alert('Заполните все поля');
+        return false;
+    }
+    
+    if (password !== passwordConfirm) {
+        alert('Пароли не совпадают');
+        return false;
+    }
+    
+    if (password.length < 6) {
+        alert('Пароль должен быть не менее 6 символов');
+        return false;
+    }
+    
+    console.log('🔵 Попытка регистрации:', username, email);
+    
+    if (window.auth) {
+        const result = window.auth.register(username, email, password);
+        if (result.success) {
+            alert('Регистрация успешна! Теперь вы можете войти.');
+            closeModal('registerModal');
+            showLogin();
+        } else {
+            alert(result.message || 'Ошибка регистрации');
+        }
+    }
+    
+    return false;
+}
+
+function updateUIAfterLogin() {
+    const session = window.auth ? window.auth.checkSession() : null;
+    
+    if (session) {
+        // Обновляем кнопки навигации
+        const navButtons = document.querySelector('.nav-buttons');
+        if (navButtons) {
+            navButtons.innerHTML = `
+                <span style="color: white; margin-right: 15px;">Привет, ${session.username}!</span>
+                <a href="dashboard.html" class="btn-primary-nav">Личный кабинет</a>
+            `;
+        }
+    }
+}
+
+// Проверка сессии при загрузке страницы
+window.addEventListener('load', () => {
+    updateUIAfterLogin();
+});
