@@ -159,7 +159,9 @@ function handleTicketSubmit(e) {
     
     // Синхронизация с Firebase
     if (window.firebaseSync && window.firebaseSync.initialized) {
-        await window.firebaseSync.saveTicket(ticket);
+        window.firebaseSync.saveTicket(ticket).catch(err => {
+            console.error('Ошибка синхронизации тикета:', err);
+        });
     }
     
     document.getElementById('ticketSubject').value = '';
@@ -257,3 +259,81 @@ if (document.readyState === 'loading') {
 } else {
     initTicketSystem();
 }
+
+// Функции для навигации к ценам
+function showPricing() {
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        pricingSection.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+function checkAuthAndShowPricing() {
+    // Просто показываем цены, авторизация не требуется для просмотра
+    showPricing();
+}
+
+function scrollToSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+// Загрузка статистики с Firebase
+async function loadStats() {
+    try {
+        if (!window.firebaseSync || !window.firebaseSync.initialized) {
+            console.log('Firebase не инициализирован, используем локальные данные');
+            updateStatsFromLocal();
+            return;
+        }
+
+        const db = firebase.firestore();
+        
+        // Загружаем пользователей
+        const usersSnapshot = await db.collection('users').get();
+        const totalUsers = usersSnapshot.size;
+        
+        // Загружаем лицензии
+        const licensesSnapshot = await db.collection('licenses').get();
+        const totalLicenses = licensesSnapshot.docs.filter(doc => doc.data().used).length;
+        
+        // Обновляем статистику на странице
+        const totalUsersHome = document.getElementById('totalUsersHome');
+        const totalLicensesHome = document.getElementById('totalLicensesHome');
+        const totalDownloadsHome = document.getElementById('totalDownloadsHome');
+        
+        if (totalUsersHome) totalUsersHome.textContent = totalUsers;
+        if (totalLicensesHome) totalLicensesHome.textContent = totalLicenses;
+        if (totalDownloadsHome) totalDownloadsHome.textContent = totalUsers * 2; // Примерная статистика
+        
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+        updateStatsFromLocal();
+    }
+}
+
+function updateStatsFromLocal() {
+    const users = JSON.parse(localStorage.getItem('forever_users') || '{}');
+    const totalUsers = Object.keys(users).length;
+    
+    const totalUsersHome = document.getElementById('totalUsersHome');
+    const totalLicensesHome = document.getElementById('totalLicensesHome');
+    const totalDownloadsHome = document.getElementById('totalDownloadsHome');
+    
+    if (totalUsersHome) totalUsersHome.textContent = totalUsers;
+    if (totalLicensesHome) totalLicensesHome.textContent = Math.floor(totalUsers * 0.7);
+    if (totalDownloadsHome) totalDownloadsHome.textContent = totalUsers * 2;
+}
+
+// Загружаем статистику при загрузке страницы
+window.addEventListener('load', () => {
+    setTimeout(loadStats, 1000); // Даем время Firebase инициализироваться
+});
