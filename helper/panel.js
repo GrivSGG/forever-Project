@@ -164,6 +164,9 @@ function renderTickets() {
         const card = document.createElement('div');
         card.className = 'ticket-card';
         card.innerHTML = `
+            <div class="ticket-close" onclick="closeTicket('${ticket.id}')" title="Закрыть тикет">
+                <i class="fas fa-times"></i>
+            </div>
             <div class="ticket-header">
                 <div class="ticket-title">${ticket.subject}</div>
                 <select class="ticket-status" onchange="changeTicketStatus('${ticket.id}', this.value)">
