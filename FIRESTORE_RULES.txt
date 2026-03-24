@@ -1,0 +1,39 @@
+ПРАВИЛА БЕЗОПАСНОСТИ FIRESTORE
+================================
+
+Скопируйте эти правила и вставьте в Firebase Console:
+
+1. Откройте https://console.firebase.google.com/project/forever-client/firestore/rules
+2. Или: Firestore Database → Rules (вкладка)
+3. Замените существующие правила на эти:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Пользователи - все могут читать и писать
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+    
+    // Тикеты - все могут читать и писать
+    match /tickets/{ticketId} {
+      allow read, write: if true;
+    }
+    
+    // Лицензии - все могут читать и писать
+    match /licenses/{licenseId} {
+      allow read, write: if true;
+    }
+    
+    // Баны - все могут читать и писать
+    match /bans/{banId} {
+      allow read, write: if true;
+    }
+  }
+}
+
+4. Нажмите кнопку "Publish" (Опубликовать)
+5. Подтвердите публикацию
+
+ВАЖНО: Эти правила открывают публичный доступ для простоты.
+В продакшене рекомендуется добавить аутентификацию Firebase.

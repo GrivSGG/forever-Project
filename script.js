@@ -157,9 +157,9 @@ function handleTicketSubmit(e) {
     tickets.push(ticket);
     saveAllTickets(tickets);
     
-    // Принудительная синхронизация после создания тикета
-    if (window.syncSystem) {
-        setTimeout(() => window.syncSystem.forceSync(), 1000);
+    // Синхронизация с Firebase
+    if (window.firebaseSync && window.firebaseSync.initialized) {
+        await window.firebaseSync.saveTicket(ticket);
     }
     
     document.getElementById('ticketSubject').value = '';

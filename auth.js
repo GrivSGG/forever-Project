@@ -186,6 +186,11 @@ class AuthSystem {
         
         this.saveUsers();
         
+        // Синхронизация с Firebase
+        if (window.firebaseSync && window.firebaseSync.initialized) {
+            await window.firebaseSync.saveUser(username, this.users[username]);
+        }
+        
         // Отправка email подтверждения
         await this.sendEmail(
             email,
@@ -197,11 +202,6 @@ class AuthSystem {
         
         // Обновление статистики
         this.updateStatistics();
-        
-        // Принудительная синхронизация после регистрации
-        if (window.syncSystem) {
-            setTimeout(() => window.syncSystem.forceSync(), 1000);
-        }
         
         return true;
     }
