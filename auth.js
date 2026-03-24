@@ -174,6 +174,9 @@ class AuthSystem {
             }
         }
         
+        // Получение IP адреса пользователя
+        const userIP = await this.getUserIP();
+        
         // Создание пользователя
         this.users[username] = {
             email: email,
@@ -181,7 +184,9 @@ class AuthSystem {
             createdAt: new Date().toISOString(),
             licenses: [],
             hwid: null,
-            role: 'user'
+            role: 'user',
+            ip: userIP,
+            lastLogin: new Date().toISOString()
         };
         
         this.saveUsers();
@@ -354,6 +359,18 @@ class AuthSystem {
     // Валидация email
     validateEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+    
+    // Получение IP адреса пользователя
+    async getUserIP() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch (error) {
+            console.error('Ошибка получения IP:', error);
+            return 'unknown';
+        }
     }
     
     // Защита от инспектора
