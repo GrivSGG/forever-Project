@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Helper Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4A90E2;
+        }
+        .user-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Helper Panel - Firebase</h1>
+        <div id="status" class="loading">Загрузка...</div>
+        <div id="users"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById('status').textContent = 'Firebase инициализирован. Загрузка пользователей...';
+
+        // Load users
+        db.collection('users').get()
+            .then(snapshot => {
+                const usersDiv = document.getElementById('users');
+                const statusDiv = document.getElementById('status');
+                
+                if (snapshot.empty) {
+                    statusDiv.textContent = 'Пользователей нет';
+                    return;
+                }
+
+                statusDiv.textContent = `Найдено пользователей: ${snapshot.size}`;
+                
+                snapshot.forEach(doc => {
+                    const user = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+                    card.innerHTML = `
+                        <h3>${doc.id}</h3>
+                        <p>Email: ${user.email}</p>
+                        <p>Создан: ${user.createdAt}</p>
+                        <p>Роль: ${user.role || 'user'}</p>
+                    `;
+                    usersDiv.appendChild(card);
+                });
+            })
+            .catch(error => {
+                document.getElementById('status').textContent = 'Ошибка: ' + error.message;
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>
