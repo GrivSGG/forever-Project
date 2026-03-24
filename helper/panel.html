@@ -10,8 +10,42 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #0a0a0f;
             color: white;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(74, 144, 226, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+        
+        .dashboard {
+            position: relative;
+            z-index: 1;
         }
         
         .dashboard { display: flex; min-height: 100vh; }
@@ -372,6 +406,9 @@
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="bg-animation" id="bgAnimation"></div>
+    
     <div class="dashboard">
         <aside class="sidebar">
             <div class="sidebar-header">
@@ -392,9 +429,13 @@
                     <i class="fas fa-ticket-alt"></i>
                     <span>Тикеты</span>
                 </div>
+                <div class="nav-item" onclick="showSection('keygen')">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Генератор ключей</span>
+                </div>
                 <div class="nav-item" onclick="showSection('keys')">
                     <i class="fas fa-key"></i>
-                    <span>Генератор ключей</span>
+                    <span>Все ключи</span>
                 </div>
                 <div class="nav-item" onclick="showSection('bans')">
                     <i class="fas fa-ban"></i>
@@ -458,8 +499,8 @@
                 <div id="ticketsContainer" class="tickets-list"></div>
             </section>
             
-            <!-- Keys Section -->
-            <section id="keys" class="content-section">
+            <!-- Key Generator Section -->
+            <section id="keygen" class="content-section">
                 <h1>Генератор ключей</h1>
                 <div class="key-generator">
                     <h3>Создать ключи</h3>
@@ -469,6 +510,8 @@
                             <option value="1day">1 день</option>
                             <option value="7days">7 дней</option>
                             <option value="30days">30 дней</option>
+                            <option value="90days">90 дней</option>
+                            <option value="beta">Бета доступ</option>
                             <option value="lifetime">Навсегда</option>
                         </select>
                     </div>
@@ -479,6 +522,12 @@
                     <button class="btn" onclick="generateKeys()">Сгенерировать</button>
                     <div id="generatedKeysContainer"></div>
                 </div>
+            </section>
+            
+            <!-- All Keys Section -->
+            <section id="keys" class="content-section">
+                <h1>Все ключи</h1>
+                <div id="keysContainer"></div>
             </section>
             
             <!-- Bans Section -->

@@ -1,6 +1,21 @@
 // Helper Panel JavaScript - Forever Client
 console.log('🔵 panel.js загружается');
 
+// Create animated background
+function createBackground() {
+    const container = document.getElementById('bgAnimation');
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+    }
+}
+
 // Firebase initialization
 let db;
 let usersData = {};
@@ -55,6 +70,7 @@ async function loadAllData() {
         renderUsers();
         renderTickets();
         renderBans();
+        renderAllKeys();
         
     } catch (error) {
         console.error('❌ Ошибка загрузки данных:', error);
@@ -101,6 +117,11 @@ function renderUsers() {
                     ⛔ Заблокирован ${user.bannedUntil ? 'до ' + new Date(user.bannedUntil).toLocaleString('ru-RU') : 'навсегда'}
                 </div>
             ` : ''}
+            <div style="margin-top: 15px;">
+                <button class="btn btn-danger" onclick="deleteUser('${username}')" style="width: 100%;">
+                    <i class="fas fa-trash"></i> Удалить аккаунт
+                </button>
+            </div>
         `;
         container.appendChild(card);
     }
@@ -429,10 +450,89 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Load data on page load
+console.log('✅ panel.js загружен');
+
+
+// Delete user
+async function deleteUser(username) {
+    if (!confirm(`Вы уверены что хотите удалить пользователя ${username}?`)) {
+        return;
+    }
+    
+    try {
+        await db.collection('users').doc(username).delete();
+        showNotification('Пользователь удален', 'success');
+        await loadAllData();
+    } catch (error) {
+        console.error('❌ Ошибка удаления пользователя:', error);
+        showNotification('Ошибка удаления пользователя', 'error');
+    }
+}
+
+// Close ticket
+async function closeTicket(ticketId) {
+    if (!confirm('Закрыть этот тикет?')) {
+        return;
+    }
+    
+    try {
+        await db.collection('tickets').doc(ticketId).delete();
+        showNotification('Тикет закрыт и удален', 'success');
+        await loadAllData();
+    } catch (error) {
+        console.error('❌ Ошибка закрытия тикета:', error);
+        showNotification('Ошибка закрытия тикета', 'error');
+    }
+}
+
+// Render all keys
+function renderAllKeys() {
+    const container = document.getElementById('keysContainer');
+    
+    if (licensesData.length === 0) {
+        container.innerHTML = '<p style="color: rgba(255,255,255,0.6);">Ключей пока нет</p>';
+        return;
+    }
+    
+    const typeNames = {
+        '1day': '1 день',
+        '7days': '7 дней',
+        '30days': '30 дней',
+        '90days': '90 дней',
+        'beta': 'Бета доступ',
+        'lifetime': 'Навсегда'
+    };
+    
+    container.innerHTML = '<div style="display: grid; gap: 15px;">';
+    
+    licensesData.forEach(license => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);';
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: 600; color: #4A90E2;">
+                    ${license.key}
+                </div>
+                <div style="padding: 5px 12px; background: ${license.used ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 152, 0, 0.2)'}; color: ${license.used ? '#4CAF50' : '#FF9800'}; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                    ${license.used ? 'Активирован' : 'Не активирован'}
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; color: rgba(255,255,255,0.7); font-size: 14px;">
+                <div><strong>Тип:</strong> ${typeNames[license.type] || license.type}</div>
+                <div><strong>Создан:</strong> ${new Date(license.createdAt).toLocaleString('ru-RU')}</div>
+                ${license.used ? `
+                    <div><strong>Активирован:</strong> ${license.activatedBy || 'Неизвестно'}</div>
+                    <div><strong>Дата активации:</strong> ${license.activatedAt ? new Date(license.activatedAt).toLocaleString('ru-RU') : 'Неизвестно'}</div>
+                ` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Initialize background on load
 window.addEventListener('load', () => {
-    console.log('✅ Страница загружена, загружаем данные...');
+    console.log('✅ Страница загружена');
+    createBackground();
     loadAllData();
 });
-
-console.log('✅ panel.js загружен');
