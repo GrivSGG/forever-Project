@@ -211,9 +211,6 @@ function renderTickets() {
         const card = document.createElement('div');
         card.className = 'ticket-card';
         card.innerHTML = `
-            <div class="ticket-close" onclick="closeTicket('${ticket.id}')" title="Закрыть тикет">
-                <i class="fas fa-times"></i>
-            </div>
             <div class="ticket-header">
                 <div class="ticket-title">${ticket.subject}</div>
                 <select class="ticket-status" onchange="changeTicketStatus('${ticket.id}', this.value)">
@@ -242,6 +239,11 @@ function renderTickets() {
             <div class="ticket-actions">
                 <input type="text" id="response_${ticket.id}" class="response-input" placeholder="Ваш ответ...">
                 <button class="btn" onclick="respondToTicket('${ticket.id}')">Ответить</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-danger" onclick="deleteTicket('${ticket.id}')" style="width: 100%;">
+                    <i class="fas fa-trash"></i> Удалить тикет
+                </button>
             </div>
         `;
         container.appendChild(card);
@@ -524,23 +526,31 @@ async function deleteUser(username) {
     }
     
     try {
+        // Delete from Firebase
         await db.collection('users').doc(username).delete();
-        showNotification('Пользователь удален', 'success');
-        await loadAllData();
+        
+        // Remove from local data
+        delete usersData[username];
+        
+        // Re-render
+        renderUsers();
+        updateStats();
+        
+        showNotification('Пользователь удален из базы данных', 'success');
     } catch (error) {
         console.error('❌ Ошибка удаления пользователя:', error);
-        showNotification('Ошибка удаления пользователя', 'error');
+        showNotification('Ошибка удаления: ' + error.message, 'error');
     }
 }
 
-// Close ticket
-async function closeTicket(ticketId) {
-    if (!confirm('Закрыть этот тикет? Он будет удален из базы данных.')) {
+// Delete ticket
+async function deleteTicket(ticketId) {
+    if (!confirm('Удалить этот тикет? Он будет удален из базы данных.')) {
         return;
     }
     
     try {
-        // Delete from Firestore
+        // Delete from Firebase
         await db.collection('tickets').doc(ticketId).delete();
         
         // Remove from local array
@@ -550,10 +560,10 @@ async function closeTicket(ticketId) {
         renderTickets();
         updateStats();
         
-        showNotification('Тикет закрыт и удален', 'success');
+        showNotification('Тикет удален из базы данных', 'success');
     } catch (error) {
-        console.error('❌ Ошибка закрытия тикета:', error);
-        showNotification('Ошибка закрытия тикета: ' + error.message, 'error');
+        console.error('❌ Ошибка удаления тикета:', error);
+        showNotification('Ошибка удаления: ' + error.message, 'error');
     }
 }
 
