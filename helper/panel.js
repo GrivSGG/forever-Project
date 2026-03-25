@@ -4,6 +4,8 @@ console.log('🔵 panel.js загружается');
 // Create animated background
 function createBackground() {
     const container = document.getElementById('bgAnimation');
+    if (!container) return;
+    
     const particleCount = 50;
     
     for (let i = 0; i < particleCount; i++) {
@@ -24,10 +26,12 @@ function selectLicenseType(type) {
     });
     
     // Add active class to selected button
-    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    const btn = document.querySelector(`[data-type="${type}"]`);
+    if (btn) btn.classList.add('active');
     
     // Update hidden input
-    document.getElementById('keyType').value = type;
+    const input = document.getElementById('keyType');
+    if (input) input.value = type;
 }
 
 // Firebase initialization
@@ -37,14 +41,43 @@ let ticketsData = [];
 let licensesData = [];
 let bansData = [];
 
-// Initialize Firebase
-firebase.initializeApp(window.firebaseConfig);
-db = firebase.firestore();
-console.log('✅ Firebase инициализирован');
+// Initialize Firebase with error handling
+function initFirebase() {
+    try {
+        console.log('🔵 Инициализация Firebase...');
+        
+        if (typeof firebase === 'undefined') {
+            console.error('❌ Firebase SDK не загружен!');
+            showNotification('Ошибка: Firebase SDK не загружен', 'error');
+            return false;
+        }
+        
+        if (!window.firebaseConfig) {
+            console.error('❌ Firebase config не найден!');
+            showNotification('Ошибка: Firebase config не найден', 'error');
+            return false;
+        }
+        
+        console.log('🔵 Firebase config:', window.firebaseConfig);
+        
+        firebase.initializeApp(window.firebaseConfig);
+        db = firebase.firestore();
+        
+        console.log('✅ Firebase инициализирован успешно');
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Ошибка инициализации Firebase:', error);
+        showNotification('Ошибка инициализации Firebase: ' + error.message, 'error');
+        return false;
+    }
+}
 
 // Load all data
 async function loadAllData() {
     try {
+        console.log('🔵 Загрузка данных из Firebase...');
+        
         // Load users
         const usersSnapshot = await db.collection('users').get();
         usersData = {};
@@ -56,7 +89,7 @@ async function loadAllData() {
         const ticketsSnapshot = await db.collection('tickets').get();
         ticketsData = [];
         ticketsSnapshot.forEach(doc => {
-            ticketsData.push(doc.data());
+            ticketsData.push({ id: doc.id, ...doc.data() });
         });
         
         // Load licenses
@@ -86,9 +119,23 @@ async function loadAllData() {
         renderBans();
         renderAllKeys();
         
+        // Hide loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        showNotification('Данные успешно загружены', 'success');
+        
     } catch (error) {
         console.error('❌ Ошибка загрузки данных:', error);
         showNotification('Ошибка загрузки данных: ' + error.message, 'error');
+        
+        // Hide loading indicator even on error
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
     }
 }
 
@@ -559,5 +606,26 @@ function renderAllKeys() {
 window.addEventListener('load', () => {
     console.log('✅ Страница загружена');
     createBackground();
-    loadAllData();
+    
+    // Wait for Firebase SDK to load
+    setTimeout(() => {
+        if (initFirebase()) {
+            loadAllData();
+        } else {
+            console.error('❌ Не удалось инициализировать Firebase');
+            document.body.innerHTML += `
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                     background: rgba(244, 67, 54, 0.9); padding: 30px; border-radius: 15px; 
+                     color: white; text-align: center; z-index: 10000; max-width: 500px;">
+                    <h2 style="margin-bottom: 15px;">❌ Ошибка загрузки</h2>
+                    <p>Не удалось подключиться к Firebase. Проверьте консоль для деталей.</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; 
+                            background: white; color: #F44336; border: none; border-radius: 8px; 
+                            cursor: pointer; font-weight: 600;">
+                        Перезагрузить страницу
+                    </button>
+                </div>
+            `;
+        }
+    }, 500);
 });

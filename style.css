@@ -266,6 +266,10 @@ body {
     font-size: 18px;
     font-weight: 600;
     transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-hero:hover {
@@ -283,6 +287,10 @@ body {
     font-size: 18px;
     font-weight: 600;
     transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-hero-outline:hover {
