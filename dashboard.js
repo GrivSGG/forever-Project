@@ -16,27 +16,35 @@ window.addEventListener('load', () => {
 });
 
 // Загрузка данных пользователя
-function loadUserData(username) {
-    const users = auth.loadUsers();
-    const user = users[username];
-    
-    if (!user) {
-        auth.showNotification('Ошибка загрузки данных пользователя', 'error');
-        return;
+async function loadUserData(username) {
+    try {
+        const db = firebase.firestore();
+        const userDoc = await db.collection('users').doc(username).get();
+        
+        if (!userDoc.exists) {
+            auth.showNotification('Ошибка загрузки данных пользователя', 'error');
+            return;
+        }
+        
+        const user = userDoc.data();
+        
+        // Отображение информации
+        document.getElementById('username').textContent = username;
+        document.getElementById('userLogin').textContent = username;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userDate').textContent = new Date(user.createdAt).toLocaleDateString('ru-RU');
+        
+        if (user.hwid) {
+            document.getElementById('userHWID').textContent = user.hwid.substring(0, 16) + '...';
+        }
+        
+        // Загрузка лицензий
+        loadLicenses(user);
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки данных:', error);
+        auth.showNotification('Ошибка загрузки данных', 'error');
     }
-    
-    // Отображение информации
-    document.getElementById('username').textContent = username;
-    document.getElementById('userLogin').textContent = username;
-    document.getElementById('userEmail').textContent = user.email;
-    document.getElementById('userDate').textContent = new Date(user.createdAt).toLocaleDateString('ru-RU');
-    
-    if (user.hwid) {
-        document.getElementById('userHWID').textContent = user.hwid.substring(0, 16) + '...';
-    }
-    
-    // Загрузка лицензий
-    loadLicenses(user);
 }
 
 // Загрузка лицензий
@@ -44,7 +52,6 @@ function loadLicenses(user) {
     const container = document.getElementById('licensesContainer');
     
     if (!user.licenses || user.licenses.length === 0) {
-        // Показываем сообщение "нет лицензий"
         return;
     }
     
@@ -55,8 +62,10 @@ function loadLicenses(user) {
         card.className = 'license-card';
         
         const typeNames = {
-            '30': '30 дней',
-            '90': '90 дней',
+            '1day': '1 день',
+            '7days': '7 дней',
+            '30days': '30 дней',
+            '90days': '90 дней',
             'lifetime': 'Навсегда',
             'beta': 'Бета доступ'
         };
@@ -109,7 +118,7 @@ function closeActivateModal() {
     document.getElementById('activateModal').classList.remove('show');
 }
 
-function handleActivation(event) {
+async function handleActivation(event) {
     event.preventDefault();
     
     const key = document.getElementById('licenseKey').value.trim().toUpperCase();
@@ -120,86 +129,79 @@ function handleActivation(event) {
         return false;
     }
     
-    // Проверка формата ключа
-    if (!key.match(/^FC(30|90|LT|BT)-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/)) {
-        auth.showNotification('Неверный формат ключа', 'error');
-        return false;
-    }
-    
-    // Проверка что ключ не использован
-    const users = auth.loadUsers();
-    for (const username in users) {
-        const user = users[username];
-        if (user.licenses) {
-            for (const license of user.licenses) {
-                if (license.key === key) {
-                    auth.showNotification('Этот ключ уже активирован', 'error');
-                    return false;
-                }
-            }
-        }
-    }
-    
-    // Определение типа лицензии
-    const prefix = key.substring(0, 4);
-    let type, days;
-    
-    switch (prefix) {
-        case 'FC30':
-            type = '30';
-            days = 30;
-            break;
-        case 'FC90':
-            type = '90';
-            days = 90;
-            break;
-        case 'FCLT':
-            type = 'lifetime';
-            days = -1;
-            break;
-        case 'FCBT':
-            type = 'beta';
-            days = -1;
-            break;
-        default:
-            auth.showNotification('Неверный тип лицензии', 'error');
+    try {
+        const db = firebase.firestore();
+        
+        // Check if license exists and not used
+        const licenseDoc = await db.collection('licenses').doc(key).get();
+        
+        if (!licenseDoc.exists) {
+            auth.showNotification('Ключ не найден', 'error');
             return false;
+        }
+        
+        const licenseData = licenseDoc.data();
+        
+        if (licenseData.used) {
+            auth.showNotification('Этот ключ уже активирован', 'error');
+            return false;
+        }
+        
+        // Generate HWID
+        const hwid = generateHWID();
+        
+        // Calculate expiry date
+        let expiryDate = null;
+        const typeDays = {
+            '1day': 1,
+            '7days': 7,
+            '30days': 30,
+            '90days': 90
+        };
+        
+        if (typeDays[licenseData.type]) {
+            expiryDate = new Date(Date.now() + typeDays[licenseData.type] * 24 * 60 * 60 * 1000).toISOString();
+        }
+        
+        // Create license object
+        const license = {
+            key: key,
+            type: licenseData.type,
+            hwid: hwid,
+            activationDate: new Date().toISOString(),
+            expiryDate: expiryDate
+        };
+        
+        // Update user in Firebase
+        await db.collection('users').doc(session.username).update({
+            licenses: firebase.firestore.FieldValue.arrayUnion(license),
+            hwid: hwid
+        });
+        
+        // Mark license as used
+        await db.collection('licenses').doc(key).update({
+            used: true,
+            activatedBy: session.username,
+            activatedAt: new Date().toISOString()
+        });
+        
+        auth.showNotification('Лицензия успешно активирована!', 'success');
+        closeActivateModal();
+        
+        // Reload data
+        setTimeout(() => {
+            loadUserData(session.username);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Ошибка активации:', error);
+        auth.showNotification('Ошибка активации: ' + error.message, 'error');
     }
-    
-    // Генерация HWID (симуляция)
-    const hwid = generateHWID();
-    
-    // Создание лицензии
-    const license = {
-        key: key,
-        type: type,
-        hwid: hwid,
-        activationDate: new Date().toISOString(),
-        expiryDate: days > 0 ? new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString() : null
-    };
-    
-    // Сохранение лицензии
-    const user = users[session.username];
-    if (!user.licenses) {
-        user.licenses = [];
-    }
-    user.licenses.push(license);
-    user.hwid = hwid;
-    
-    localStorage.setItem('forever_users', JSON.stringify(users));
-    
-    auth.showNotification('Лицензия успешно активирована!', 'success');
-    closeActivateModal();
-    
-    // Перезагрузка данных
-    setTimeout(() => {
-        loadUserData(session.username);
-    }, 1000);
     
     return false;
 }
 
-// Генерация HWID (симуляция)
+// Generate HWID
 function generateHWID() {
     const chars = 'ABCDEF0123456789';
     let hwid = '';
@@ -209,7 +211,7 @@ function generateHWID() {
     return hwid;
 }
 
-// Скачивание клиента
+// Download client
 function downloadClient() {
     const session = auth.checkSession();
     if (!session) {
@@ -217,34 +219,353 @@ function downloadClient() {
         return;
     }
     
-    const users = auth.loadUsers();
-    const user = users[session.username];
-    
-    if (!user.licenses || user.licenses.length === 0) {
-        auth.showNotification('Сначала активируйте лицензию', 'warning');
-        return;
-    }
-    
-    // Проверка активных лицензий
-    const hasActiveLicense = user.licenses.some(license => {
-        if (!license.expiryDate) return true;
-        return new Date(license.expiryDate) > new Date();
-    });
-    
-    if (!hasActiveLicense) {
-        auth.showNotification('У вас нет активных лицензий', 'error');
-        return;
-    }
-    
-    auth.showNotification('Начинается загрузка Forever Client...', 'success');
-    
-    // Здесь будет ссылка на реальный файл
-    setTimeout(() => {
-        auth.showNotification('Функция загрузки в разработке. Свяжитесь с поддержкой.', 'info');
-    }, 2000);
+    auth.showNotification('Функция загрузки в разработке. Свяжитесь с поддержкой.', 'info');
 }
 
-// Стили для code
+// Ticket functions
+function showTicketModal() {
+    document.getElementById('ticketModal').classList.add('show');
+}
+
+function closeTicketModal() {
+    document.getElementById('ticketModal').classList.remove('show');
+}
+
+function showViewTicketsModal() {
+    loadUserTickets();
+    document.getElementById('viewTicketsModal').classList.add('show');
+}
+
+function closeViewTicketsModal() {
+    document.getElementById('viewTicketsModal').classList.remove('show');
+}
+
+async function submitTicket(event) {
+    event.preventDefault();
+    
+    const subject = document.getElementById('ticketProblem').value.trim();
+    const message = document.getElementById('ticketDescription').value.trim();
+    const session = auth.checkSession();
+    
+    if (!session) return false;
+    
+    try {
+        const db = firebase.firestore();
+        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        await db.collection('tickets').doc(ticketId).set({
+            id: ticketId,
+            username: session.username,
+            subject: subject,
+            message: message,
+            status: 'pending',
+            responses: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        auth.showNotification('Тикет создан успешно', 'success');
+        document.getElementById('ticketForm').reset();
+        closeTicketModal();
+        
+    } catch (error) {
+        console.error('❌ Ошибка создания тикета:', error);
+        auth.showNotification('Ошибка создания тикета: ' + error.message, 'error');
+    }
+    
+    return false;
+}
+
+async function loadUserTickets() {
+    const session = auth.checkSession();
+    if (!session) return;
+    
+    const ticketsList = document.getElementById('ticketsList');
+    ticketsList.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #4A90E2;"></i><br><br>Загрузка тикетов...</div>';
+    
+    try {
+        const db = firebase.firestore();
+        const snapshot = await db.collection('tickets')
+            .where('username', '==', session.username)
+            .get();
+        
+        if (snapshot.empty) {
+            ticketsList.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                    У вас пока нет тикетов
+                </div>
+            `;
+            return;
+        }
+        
+        ticketsList.innerHTML = '';
+        
+        const statusNames = {
+            'pending': 'В ожидании',
+            'reviewing': 'Рассматривается',
+            'waiting_response': 'Ожидание ответа',
+            'ready': 'Готово',
+            'closed': 'Закрыт'
+        };
+        
+        const tickets = [];
+        snapshot.forEach(doc => {
+            tickets.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Sort by date
+        tickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        tickets.forEach(ticket => {
+            const ticketDiv = document.createElement('div');
+            ticketDiv.className = 'ticket-item';
+            ticketDiv.innerHTML = `
+                <div class="ticket-item-header">
+                    <div class="ticket-subject">${ticket.subject}</div>
+                    <div class="ticket-status-badge ${ticket.status || 'pending'}">
+                        ${statusNames[ticket.status] || 'В ожидании'}
+                    </div>
+                </div>
+                <div style="color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 15px;">
+                    Создан: ${new Date(ticket.createdAt).toLocaleString('ru-RU')}
+                </div>
+                <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 15px;">
+                    ${ticket.message}
+                </div>
+                
+                ${ticket.responses && ticket.responses.length > 0 ? `
+                    <div class="ticket-chat">
+                        ${ticket.responses.map(response => `
+                            <div class="chat-message ${response.from === session.username ? 'user' : 'helper'}">
+                                <div class="chat-author">${response.from}</div>
+                                <div class="chat-text">${response.message}</div>
+                                <div class="chat-time">${new Date(response.date).toLocaleString('ru-RU')}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '<div style="color: rgba(255,255,255,0.4); font-style: italic; padding: 10px;">Ответов пока нет</div>'}
+                
+                ${ticket.status !== 'closed' ? `
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="reply_${ticket.id}" placeholder="Написать сообщение...">
+                        <button class="btn-send" onclick="sendTicketReply('${ticket.id}')">
+                            <i class="fas fa-paper-plane"></i> Отправить
+                        </button>
+                    </div>
+                ` : '<div style="color: rgba(255,255,255,0.4); font-style: italic; padding: 10px; text-align: center;">Тикет закрыт</div>'}
+            `;
+            
+            ticketsList.appendChild(ticketDiv);
+        });
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки тикетов:', error);
+        ticketsList.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #F44336;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                Ошибка загрузки тикетов: ${error.message}
+            </div>
+        `;
+    }
+}
+
+async function sendTicketReply(ticketId) {
+    const input = document.getElementById(`reply_${ticketId}`);
+    const message = input.value.trim();
+    
+    if (!message) {
+        auth.showNotification('Введите сообщение', 'error');
+        return;
+    }
+    
+    const session = auth.checkSession();
+    if (!session) return;
+    
+    try {
+        const db = firebase.firestore();
+        const response = {
+            from: session.username,
+            message: message,
+            date: new Date().toISOString()
+        };
+        
+        await db.collection('tickets').doc(ticketId).update({
+            responses: firebase.firestore.FieldValue.arrayUnion(response),
+            status: 'waiting_response',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        input.value = '';
+        auth.showNotification('Сообщение отправлено', 'success');
+        
+        // Reload tickets
+        await loadUserTickets();
+        
+    } catch (error) {
+        console.error('❌ Ошибка отправки сообщения:', error);
+        auth.showNotification('Ошибка отправки: ' + error.message, 'error');
+    }
+}
+
+// Ticket modal functions
+function showTicketModal() {
+    document.getElementById('ticketModal').classList.add('show');
+}
+
+function closeTicketModal() {
+    document.getElementById('ticketModal').classList.remove('show');
+}
+
+function showViewTicketsModal() {
+    loadUserTickets();
+    document.getElementById('viewTicketsModal').classList.add('show');
+}
+
+function closeViewTicketsModal() {
+    document.getElementById('viewTicketsModal').classList.remove('show');
+}
+
+async function submitTicket(event) {
+    event.preventDefault();
+    
+    const subject = document.getElementById('ticketProblem').value.trim();
+    const message = document.getElementById('ticketDescription').value.trim();
+    const session = auth.checkSession();
+    
+    if (!session) return false;
+    
+    try {
+        const db = firebase.firestore();
+        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        await db.collection('tickets').doc(ticketId).set({
+            id: ticketId,
+            username: session.username,
+            subject: subject,
+            message: message,
+            status: 'pending',
+            responses: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        auth.showNotification('Тикет создан успешно', 'success');
+        document.getElementById('ticketForm').reset();
+        closeTicketModal();
+        
+    } catch (error) {
+        console.error('❌ Ошибка создания тикета:', error);
+        auth.showNotification('Ошибка создания тикета: ' + error.message, 'error');
+    }
+    
+    return false;
+}
+
+// Activation functions
+function activateLicense() {
+    document.getElementById('activateModal').classList.add('show');
+}
+
+function closeActivateModal() {
+    document.getElementById('activateModal').classList.remove('show');
+}
+
+async function handleActivation(event) {
+    event.preventDefault();
+    
+    const key = document.getElementById('licenseKey').value.trim();
+    const session = auth.checkSession();
+    
+    if (!session) {
+        auth.showNotification('Ошибка сессии', 'error');
+        return false;
+    }
+    
+    try {
+        const db = firebase.firestore();
+        
+        // Check license
+        const licenseDoc = await db.collection('licenses').doc(key).get();
+        
+        if (!licenseDoc.exists) {
+            auth.showNotification('Ключ не найден', 'error');
+            return false;
+        }
+        
+        const licenseData = licenseDoc.data();
+        
+        if (licenseData.used) {
+            auth.showNotification('Этот ключ уже активирован', 'error');
+            return false;
+        }
+        
+        // Generate HWID
+        const hwid = generateHWID();
+        
+        // Calculate expiry
+        let expiryDate = null;
+        const typeDays = {
+            '1day': 1,
+            '7days': 7,
+            '30days': 30,
+            '90days': 90
+        };
+        
+        if (typeDays[licenseData.type]) {
+            expiryDate = new Date(Date.now() + typeDays[licenseData.type] * 24 * 60 * 60 * 1000).toISOString();
+        }
+        
+        const license = {
+            key: key,
+            type: licenseData.type,
+            hwid: hwid,
+            activationDate: new Date().toISOString(),
+            expiryDate: expiryDate
+        };
+        
+        // Update user
+        await db.collection('users').doc(session.username).update({
+            licenses: firebase.firestore.FieldValue.arrayUnion(license),
+            hwid: hwid
+        });
+        
+        // Mark license as used
+        await db.collection('licenses').doc(key).update({
+            used: true,
+            activatedBy: session.username,
+            activatedAt: new Date().toISOString()
+        });
+        
+        auth.showNotification('Лицензия активирована!', 'success');
+        closeActivateModal();
+        
+        setTimeout(() => {
+            loadUserData(session.username);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Ошибка активации:', error);
+        auth.showNotification('Ошибка: ' + error.message, 'error');
+    }
+    
+    return false;
+}
+
+function generateHWID() {
+    const chars = 'ABCDEF0123456789';
+    let hwid = '';
+    for (let i = 0; i < 32; i++) {
+        hwid += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return hwid;
+}
+
+function downloadClient() {
+    auth.showNotification('Функция загрузки в разработке', 'info');
+}
+
+// Code style
 const codeStyle = document.createElement('style');
 codeStyle.textContent = `
     code {

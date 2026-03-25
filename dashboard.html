@@ -221,8 +221,8 @@
             </div>
             <ul class="nav-menu">
                 <li><a href="index.html">Главная</a></li>
-                <li><a href="index.html#pricing">Купить</a></li>
-                <li><a href="index.html#support">Поддержка</a></li>
+                <li><a href="products.html">Товары</a></li>
+                <li><a href="#" onclick="showViewTicketsModal(); return false;">Тикеты</a></li>
             </ul>
             <div class="nav-buttons">
                 <button class="btn-nav" onclick="auth.logout()">
@@ -316,16 +316,22 @@
                         <p>Загрузите последнюю версию Forever Client</p>
                     </div>
                     
-                    <div class="action-card" onclick="window.location.href='index.html#support'">
+                    <div class="action-card" onclick="showTicketModal()">
                         <i class="fas fa-headset"></i>
-                        <h3>Поддержка</h3>
+                        <h3>Создать тикет</h3>
                         <p>Свяжитесь с нашей службой поддержки</p>
                     </div>
                     
-                    <div class="action-card" onclick="window.location.href='index.html#pricing'">
+                    <div class="action-card" onclick="showViewTicketsModal()">
+                        <i class="fas fa-ticket-alt"></i>
+                        <h3>Мои тикеты</h3>
+                        <p>Просмотр и управление тикетами</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="window.location.href='products.html'">
                         <i class="fas fa-shopping-cart"></i>
-                        <h3>Купить лицензию</h3>
-                        <p>Приобретите или продлите лицензию</p>
+                        <h3>Товары</h3>
+                        <p>Подписки, бета доступ и конфиги</p>
                     </div>
                 </div>
             </div>
@@ -361,6 +367,22 @@
 
     <script src="auth.js"></script>
     <script src="dashboard.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+        window.firebaseConfig = firebaseConfig;
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </body>
 </html>
 
@@ -386,12 +408,154 @@
 
 <!-- Модальное окно просмотра тикетов -->
 <div id="viewTicketsModal" class="modal">
-    <div class="modal-content" style="max-width: 800px;">
+    <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
         <span class="modal-close" onclick="closeViewTicketsModal()">&times;</span>
         <h2>Мои тикеты</h2>
         <div id="ticketsList"></div>
     </div>
 </div>
+
+<style>
+.ticket-chat {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.chat-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-message.user {
+    background: rgba(74, 144, 226, 0.2);
+    border-left: 3px solid #4A90E2;
+}
+
+.chat-message.helper {
+    background: rgba(76, 175, 80, 0.2);
+    border-left: 3px solid #4CAF50;
+}
+
+.chat-author {
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.chat-message.user .chat-author {
+    color: #4A90E2;
+}
+
+.chat-message.helper .chat-author {
+    color: #4CAF50;
+}
+
+.chat-text {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+}
+
+.chat-time {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 5px;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #4A90E2;
+}
+
+.btn-send {
+    padding: 12px 24px;
+    background: #4A90E2;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-send:hover {
+    background: #357ABD;
+}
+
+.ticket-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.ticket-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ticket-subject {
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+}
+
+.ticket-status-badge {
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ticket-status-badge.pending {
+    background: rgba(255, 152, 0, 0.2);
+    color: #FF9800;
+}
+
+.ticket-status-badge.reviewing {
+    background: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+}
+
+.ticket-status-badge.ready {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.ticket-status-badge.closed {
+    background: rgba(158, 158, 158, 0.2);
+    color: #9E9E9E;
+}
+</style>
 
 <script>
 function showTicketModal() {
