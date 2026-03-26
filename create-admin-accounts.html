@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание админ аккаунтов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4A90E2;
+        }
+        .info {
+            background: rgba(74, 144, 226, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+            line-height: 1.6;
+        }
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #4A90E2, #9C27B0);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            transform: scale(1.02);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log div {
+            margin: 5px 0;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #F44336; }
+        .info-log { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Создание админ аккаунтов</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Эта страница создаст:</strong><br><br>
+            <strong>1. Админ аккаунт:</strong><br>
+            Логин: admin<br>
+            Пароль: Su6-N77-B6e-nWj<br>
+            Роль: admin<br><br>
+            
+            <strong>2. Helper аккаунт:</strong><br>
+            Логин: Helper<br>
+            Пароль: MZFeEgJY<br>
+            Роль: helper
+        </div>
+        
+        <button id="createBtn" onclick="createAccounts()">
+            🚀 Создать аккаунты
+        </button>
+        
+        <div id="log" class="log" style="display: none;"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        function log(message, type = 'info-log') {
+            const logDiv = document.getElementById('log');
+            logDiv.style.display = 'block';
+            
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        async function createAccounts() {
+            const btn = document.getElementById('createBtn');
+            btn.disabled = true;
+            btn.textContent = 'Создание...';
+            
+            document.getElementById('log').innerHTML = '';
+            
+            try {
+                log('🔵 Начало создания аккаунтов...', 'info-log');
+                
+                // Create admin account
+                log('Создание админ аккаунта...', 'info-log');
+                
+                const adminData = {
+                    username: 'admin',
+                    email: 'admin@forever-client.local',
+                    password: hashPassword('Su6-N77-B6e-nWj'),
+                    role: 'admin',
+                    createdAt: new Date().toISOString(),
+                    ip: 'localhost',
+                    licenses: [],
+                    banned: false
+                };
+                
+                await db.collection('users').doc('admin').set(adminData);
+                log('✅ Админ аккаунт создан', 'success');
+                
+                // Create helper account
+                log('Создание helper аккаунта...', 'info-log');
+                
+                const helperData = {
+                    username: 'Helper',
+                    email: 'helper@forever-client.local',
+                    password: hashPassword('MZFeEgJY'),
+                    role: 'helper',
+                    createdAt: new Date().toISOString(),
+                    ip: 'localhost',
+                    licenses: [],
+                    banned: false
+                };
+                
+                await db.collection('users').doc('Helper').set(helperData);
+                log('✅ Helper аккаунт создан', 'success');
+                
+                log('', 'info-log');
+                log('🎉 Все аккаунты успешно созданы!', 'success');
+                log('', 'info-log');
+                log('Теперь вы можете войти:', 'info-log');
+                log('Admin: admin / Su6-N77-B6e-nWj', 'info-log');
+                log('Helper: Helper / MZFeEgJY', 'info-log');
+                
+                btn.textContent = '✅ Готово!';
+                btn.style.background = '#4CAF50';
+                
+            } catch (error) {
+                log('❌ Ошибка: ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = '🔄 Попробовать снова';
+            }
+        }
+        
+        // Simple hash function (same as in auth.js)
+        function hashPassword(password) {
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString(36);
+        }
+    </script>
+</body>
+</html>
