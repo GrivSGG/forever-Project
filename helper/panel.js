@@ -78,40 +78,49 @@ async function loadAllData() {
     try {
         console.log('🔵 Загрузка данных из Firebase...');
         
+        // Show loading
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'flex';
+        }
+        
         // Load users
+        console.log('🔵 Загрузка пользователей...');
         const usersSnapshot = await db.collection('users').get();
         usersData = {};
         usersSnapshot.forEach(doc => {
             usersData[doc.id] = doc.data();
         });
+        console.log('✅ Пользователей загружено:', Object.keys(usersData).length);
         
         // Load tickets
+        console.log('🔵 Загрузка тикетов...');
         const ticketsSnapshot = await db.collection('tickets').get();
         ticketsData = [];
         ticketsSnapshot.forEach(doc => {
             ticketsData.push({ id: doc.id, ...doc.data() });
         });
+        console.log('✅ Тикетов загружено:', ticketsData.length);
         
         // Load licenses
+        console.log('🔵 Загрузка лицензий...');
         const licensesSnapshot = await db.collection('licenses').get();
         licensesData = [];
         licensesSnapshot.forEach(doc => {
             licensesData.push({ key: doc.id, ...doc.data() });
         });
+        console.log('✅ Лицензий загружено:', licensesData.length);
         
         // Load bans
+        console.log('🔵 Загрузка банов...');
         const bansSnapshot = await db.collection('bans').get();
         bansData = [];
         bansSnapshot.forEach(doc => {
             bansData.push({ id: doc.id, ...doc.data() });
         });
+        console.log('✅ Банов загружено:', bansData.length);
         
-        console.log('✅ Данные загружены:', {
-            users: Object.keys(usersData).length,
-            tickets: ticketsData.length,
-            licenses: licensesData.length,
-            bans: bansData.length
-        });
+        console.log('✅ Все данные загружены');
         
         updateStats();
         renderUsers();
@@ -120,7 +129,6 @@ async function loadAllData() {
         renderAllKeys();
         
         // Hide loading indicator
-        const loadingIndicator = document.getElementById('loadingIndicator');
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
         }
@@ -129,13 +137,16 @@ async function loadAllData() {
         
     } catch (error) {
         console.error('❌ Ошибка загрузки данных:', error);
-        showNotification('Ошибка загрузки данных: ' + error.message, 'error');
+        console.error('❌ Error details:', error.code, error.message);
         
-        // Hide loading indicator even on error
+        // Hide loading indicator
         const loadingIndicator = document.getElementById('loadingIndicator');
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
         }
+        
+        showNotification('Ошибка загрузки данных: ' + error.message, 'error');
+        showErrorScreen('Ошибка загрузки данных: ' + error.message + '<br><br>Проверьте Firebase Rules в консоли.');
     }
 }
 
