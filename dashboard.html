@@ -391,17 +391,29 @@
 <div id="ticketModal" class="modal">
     <div class="modal-content">
         <span class="modal-close" onclick="closeTicketModal()">&times;</span>
-        <h2>Создать тикет поддержки</h2>
+        <h2 style="margin-bottom: 30px; color: #4A90E2;">
+            <i class="fas fa-headset"></i> Создать тикет поддержки
+        </h2>
         <form id="ticketForm" onsubmit="return submitTicket(event)">
             <div class="form-group">
-                <label>Проблема:</label>
-                <input type="text" id="ticketProblem" required placeholder="Кратко опишите проблему">
+                <label style="display: block; margin-bottom: 10px; color: rgba(255,255,255,0.9); font-weight: 600;">
+                    <i class="fas fa-tag"></i> Тема обращения:
+                </label>
+                <input type="text" id="ticketProblem" required placeholder="Например: Проблема с активацией ключа"
+                       style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+                              border-radius: 10px; color: white; font-size: 16px;">
             </div>
             <div class="form-group">
-                <label>Описание проблемы:</label>
-                <textarea id="ticketDescription" required rows="5" placeholder="Подробно опишите вашу проблему"></textarea>
+                <label style="display: block; margin-bottom: 10px; color: rgba(255,255,255,0.9); font-weight: 600;">
+                    <i class="fas fa-comment-alt"></i> Подробное описание:
+                </label>
+                <textarea id="ticketDescription" required rows="6" placeholder="Опишите вашу проблему максимально подробно..."
+                          style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
+                                 border-radius: 10px; color: white; font-size: 16px; resize: vertical; min-height: 150px;"></textarea>
             </div>
-            <button type="submit" class="btn-modal">Отправить тикет</button>
+            <button type="submit" class="btn-modal" style="width: 100%; padding: 18px; font-size: 18px; background: linear-gradient(135deg, #4A90E2, #9C27B0); border: none; border-radius: 12px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                <i class="fas fa-paper-plane"></i> Отправить тикет
+            </button>
         </form>
     </div>
 </div>
@@ -418,18 +430,20 @@
 <style>
 .ticket-chat {
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 15px;
-    max-height: 300px;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    max-height: 400px;
     overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chat-message {
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
     animation: slideIn 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 @keyframes slideIn {
@@ -438,82 +452,111 @@
 }
 
 .chat-message.user {
-    background: rgba(74, 144, 226, 0.2);
-    border-left: 3px solid #4A90E2;
+    background: linear-gradient(135deg, rgba(74, 144, 226, 0.25), rgba(74, 144, 226, 0.15));
+    border-left: 4px solid #4A90E2;
 }
 
 .chat-message.helper {
-    background: rgba(76, 175, 80, 0.2);
-    border-left: 3px solid #4CAF50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25), rgba(76, 175, 80, 0.15));
+    border-left: 4px solid #4CAF50;
 }
 
 .chat-author {
-    font-weight: 600;
-    margin-bottom: 5px;
-    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .chat-message.user .chat-author {
     color: #4A90E2;
 }
 
+.chat-message.user .chat-author::before {
+    content: '👤';
+}
+
 .chat-message.helper .chat-author {
     color: #4CAF50;
 }
 
+.chat-message.helper .chat-author::before {
+    content: '🛠️';
+}
+
 .chat-text {
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.6;
+    font-size: 15px;
 }
 
 .chat-time {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
-    margin-top: 5px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 8px;
+    font-style: italic;
 }
 
 .chat-input-area {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chat-input {
     flex: 1;
-    padding: 12px;
+    padding: 14px 18px;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
     color: white;
-    font-size: 14px;
+    font-size: 15px;
+    transition: all 0.3s;
 }
 
 .chat-input:focus {
     outline: none;
     border-color: #4A90E2;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .btn-send {
-    padding: 12px 24px;
-    background: #4A90E2;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
     border: none;
     color: white;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
+    font-size: 15px;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
 }
 
 .btn-send:hover {
-    background: #357ABD;
+    background: linear-gradient(135deg, #357ABD, #2868a6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
 }
 
 .ticket-item {
     background: rgba(255, 255, 255, 0.05);
-    padding: 20px;
-    border-radius: 12px;
+    padding: 25px;
+    border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    transition: all 0.3s;
+}
+
+.ticket-item:hover {
+    border-color: rgba(74, 144, 226, 0.5);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.2);
 }
 
 .ticket-item-header {
@@ -524,36 +567,48 @@
 }
 
 .ticket-subject {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     color: white;
 }
 
 .ticket-status-badge {
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .ticket-status-badge.pending {
-    background: rgba(255, 152, 0, 0.2);
+    background: rgba(255, 152, 0, 0.25);
     color: #FF9800;
+    border: 1px solid rgba(255, 152, 0, 0.4);
 }
 
 .ticket-status-badge.reviewing {
-    background: rgba(33, 150, 243, 0.2);
+    background: rgba(33, 150, 243, 0.25);
     color: #2196F3;
+    border: 1px solid rgba(33, 150, 243, 0.4);
+}
+
+.ticket-status-badge.waiting_response {
+    background: rgba(156, 39, 176, 0.25);
+    color: #9C27B0;
+    border: 1px solid rgba(156, 39, 176, 0.4);
 }
 
 .ticket-status-badge.ready {
-    background: rgba(76, 175, 80, 0.2);
+    background: rgba(76, 175, 80, 0.25);
     color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.4);
 }
 
 .ticket-status-badge.closed {
-    background: rgba(158, 158, 158, 0.2);
+    background: rgba(158, 158, 158, 0.25);
     color: #9E9E9E;
+    border: 1px solid rgba(158, 158, 158, 0.4);
 }
 </style>
 
