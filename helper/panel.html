@@ -7,697 +7,78 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
             background-size: 400% 400%;
             animation: gradientShift 15s ease infinite;
             color: white;
-            position: relative;
-            overflow-x: hidden;
+            min-height: 100vh;
         }
-        
         @keyframes gradientShift {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        
-        /* Animated Background */
-        .bg-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(74, 144, 226, 0.6);
-            border-radius: 50%;
-            animation: float 15s infinite;
-            box-shadow: 0 0 10px rgba(74, 144, 226, 0.8);
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-        }
-        
-        /* Glowing orbs */
-        .bg-animation::before,
-        .bg-animation::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-            animation: orbFloat 20s ease-in-out infinite;
-        }
-        
-        .bg-animation::before {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, #4A90E2, transparent);
-            top: 20%;
-            left: 10%;
-        }
-        
-        .bg-animation::after {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, #9C27B0, transparent);
-            bottom: 10%;
-            right: 10%;
-            animation-delay: -10s;
-        }
-        
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(100px, 100px); }
-        }
-        
-        .dashboard {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .dashboard { display: flex; min-height: 100vh; }
-        
-        .sidebar {
-            width: 260px;
-            background: rgba(10, 10, 10, 0.95);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            position: fixed;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-header {
-            padding: 30px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-header h2 {
-            color: #4A90E2;
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        
-        .sidebar-header p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-        }
-        
-        .sidebar-nav {
-            flex: 1;
-            padding: 20px 0;
-            overflow-y: auto;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 20px;
-            color: rgba(255, 255, 255, 0.7);
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        
-        .nav-item:hover {
-            background: rgba(74, 144, 226, 0.1);
-            color: white;
-            border-left-color: #4A90E2;
-        }
-        
-        .nav-item.active {
-            background: rgba(74, 144, 226, 0.2);
-            color: #4A90E2;
-            border-left-color: #4A90E2;
-        }
-        
-        .nav-item i {
-            font-size: 20px;
-            width: 24px;
-        }
-        
-        .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn-logout {
-            width: 100%;
-            padding: 12px;
-            background: rgba(244, 67, 54, 0.2);
-            border: 1px solid #F44336;
-            color: #F44336;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        
-        .btn-logout:hover {
-            background: #F44336;
-            color: white;
-        }
-        
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 30px;
-        }
-        
-        .content-section {
-            display: none;
-        }
-        
-        .content-section.active {
-            display: block;
-        }
-        
-        h1 {
-            font-size: 32px;
-            margin-bottom: 30px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            background: rgba(74, 144, 226, 0.2);
-            color: #4A90E2;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 5px;
-        }
-        
-        .users-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-        
-        .user-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .user-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .user-name {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .user-role {
-            padding: 5px 12px;
-            background: rgba(74, 144, 226, 0.2);
-            color: #4A90E2;
-            border-radius: 20px;
-            font-size: 12px;
-        }
-        
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .user-info strong {
-            color: white;
-        }
-        
-        .tickets-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .ticket-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .ticket-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .ticket-title {
-            font-size: 18px;
-            font-weight: 600;
-            flex: 1;
-        }
-        
-        .ticket-status {
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-        }
-        
-        .ticket-message {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        
-        .ticket-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .response-input {
-            flex: 1;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            background: #4A90E2;
-            border: none;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        
-        .btn:hover {
-            background: #357ABD;
-        }
-        
-        .btn-danger {
-            background: #F44336;
-        }
-        
-        .btn-danger:hover {
-            background: #da190b;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #4A90E2;
-        }
-        
-        .key-generator {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 30px;
-            max-width: 800px;
-        }
-        
-        .license-types {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .license-type-btn {
-            padding: 20px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .license-type-btn:hover {
-            background: rgba(74, 144, 226, 0.1);
-            border-color: #4A90E2;
-            transform: translateY(-2px);
-        }
-        
-        .license-type-btn.active {
-            background: rgba(74, 144, 226, 0.2);
-            border-color: #4A90E2;
-            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
-        }
-        
-        .license-type-btn i {
-            font-size: 24px;
-            color: #4A90E2;
-        }
-        
-        .license-type-btn span {
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .generated-keys {
-            background: rgba(76, 175, 80, 0.1);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #4CAF50;
-            margin-top: 20px;
-        }
-        
-        .key-item {
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            margin: 10px 0;
-        }
-        
-        .ban-forms {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .ban-form {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .ban-form h3 {
-            margin-bottom: 20px;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .notification-success { background: #4CAF50; }
-        .notification-error { background: #F44336; }
-        .notification-info { background: #2196F3; }
-        
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        h1 { text-align: center; font-size: 48px; margin-bottom: 40px; color: #4A90E2; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        .stat-value { font-size: 48px; font-weight: 700; color: #4A90E2; margin-bottom: 10px; }
+        .stat-label { font-size: 18px; color: rgba(255, 255, 255, 0.7); }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-tab { padding: 12px 24px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: rgba(255, 255, 255, 0.7); cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .nav-tab:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+        .nav-tab.active { background: #4A90E2; color: white; border-color: #4A90E2; }
+        .section { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 30px; }
+        .section h2 { font-size: 32px; margin-bottom: 25px; color: #4A90E2; }
+        .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .user-card { background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .user-name { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: #4A90E2; }
+        .user-info { color: rgba(255, 255, 255, 0.7); line-height: 1.8; }
+        .ticket-card { background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.9); font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; font-size: 14px; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .license-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .license-type-btn { padding: 15px; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: rgba(255, 255, 255, 0.7); cursor: pointer; transition: all 0.3s; text-align: center; font-weight: 600; }
+        .license-type-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
+        .license-type-btn.active { background: rgba(74, 144, 226, 0.2); border-color: #4A90E2; color: #4A90E2; }
+        .generated-keys { background: rgba(76, 175, 80, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(76, 175, 80, 0.3); margin-top: 20px; }
+        .key-item { background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; margin-bottom: 8px; font-family: 'Courier New', monospace; font-size: 16px; color: #4CAF50; }
+        .loading { text-align: center; padding: 60px; font-size: 24px; color: #4A90E2; }
+        .error { text-align: center; padding: 60px; font-size: 20px; color: #F44336; }
+        .btn { padding: 12px 24px; background: #4A90E2; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #357ABD; }
+        .btn-danger { background: #F44336; }
+        .btn-danger:hover { background: #da190b; }
+        .response-input { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; margin-top: 15px; }
+        .ticket-status { padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-animation" id="bgAnimation"></div>
-    
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-         background: rgba(0, 0, 0, 0.9); display: flex; align-items: center; justify-content: center; 
-         z-index: 9999; flex-direction: column; gap: 20px;">
-        <div style="width: 60px; height: 60px; border: 4px solid rgba(74, 144, 226, 0.3); 
-             border-top-color: #4A90E2; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        <div style="color: white; font-size: 18px; font-weight: 600;">Загрузка данных...</div>
-    </div>
-    
-    <style>
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
-    
-    <div class="dashboard">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Helper Panel</h2>
-                <p>Forever Client</p>
+    <div class="container">
+        <h1>🛠️ Helper Panel</h1>
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showTab('overview')">📊 Обзор</div>
+            <div class="nav-tab" onclick="showTab('userinfo')">🔍 Поиск</div>
+            <div class="nav-tab" onclick="showTab('users')">👥 Пользователи</div>
+            <div class="nav-tab" onclick="showTab('tickets')">🎫 Тикеты</div>
+            <div class="nav-tab" onclick="showTab('keygen')">🔑 Генератор</div>
+            <div class="nav-tab" onclick="showTab('allkeys')">📋 Ключи</div>
+            <div class="nav-tab" onclick="showTab('bans')">⛔ Баны</div>
+        </div>
+        <div id="content">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                Загрузка...
             </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-item active" onclick="showSection('overview')">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Обзор</span>
-                </div>
-                <div class="nav-item" onclick="showSection('users')">
-                    <i class="fas fa-users"></i>
-                    <span>Пользователи</span>
-                </div>
-                <div class="nav-item" onclick="showSection('tickets')">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span>Тикеты</span>
-                </div>
-                <div class="nav-item" onclick="showSection('keygen')">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Генератор ключей</span>
-                </div>
-                <div class="nav-item" onclick="showSection('keys')">
-                    <i class="fas fa-key"></i>
-                    <span>Все ключи</span>
-                </div>
-                <div class="nav-item" onclick="showSection('bans')">
-                    <i class="fas fa-ban"></i>
-                    <span>Баны</span>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <a href="../index.html" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Выход
-                </a>
-            </div>
-        </aside>
-        
-        <main class="main-content">
-            <!-- Overview Section -->
-            <section id="overview" class="content-section active">
-                <h1>Обзор</h1>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div>
-                            <div class="stat-value" id="totalUsers">0</div>
-                            <div class="stat-label">Пользователей</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
-                        <div>
-                            <div class="stat-value" id="totalTickets">0</div>
-                            <div class="stat-label">Тикетов</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-key"></i></div>
-                        <div>
-                            <div class="stat-value" id="totalLicenses">0</div>
-                            <div class="stat-label">Лицензий</div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-ban"></i></div>
-                        <div>
-                            <div class="stat-value" id="totalBans">0</div>
-                            <div class="stat-label">Банов</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Users Section -->
-            <section id="users" class="content-section">
-                <h1>Пользователи</h1>
-                <div id="usersContainer" class="users-grid"></div>
-            </section>
-            
-            <!-- Tickets Section -->
-            <section id="tickets" class="content-section">
-                <h1>Тикеты</h1>
-                <div id="ticketsContainer" class="tickets-list"></div>
-            </section>
-            
-            <!-- Key Generator Section -->
-            <section id="keygen" class="content-section">
-                <h1>Генератор ключей</h1>
-                <div class="key-generator">
-                    <h3>Создать ключи</h3>
-                    <div class="form-group">
-                        <label>Тип лицензии:</label>
-                        <div class="license-types">
-                            <div class="license-type-btn active" data-type="1day" onclick="selectLicenseType('1day')">
-                                <i class="fas fa-clock"></i>
-                                <span>1 день</span>
-                            </div>
-                            <div class="license-type-btn" data-type="7days" onclick="selectLicenseType('7days')">
-                                <i class="fas fa-calendar-week"></i>
-                                <span>7 дней</span>
-                            </div>
-                            <div class="license-type-btn" data-type="30days" onclick="selectLicenseType('30days')">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>30 дней</span>
-                            </div>
-                            <div class="license-type-btn" data-type="90days" onclick="selectLicenseType('90days')">
-                                <i class="fas fa-calendar"></i>
-                                <span>90 дней</span>
-                            </div>
-                            <div class="license-type-btn" data-type="beta" onclick="selectLicenseType('beta')">
-                                <i class="fas fa-flask"></i>
-                                <span>Бета</span>
-                            </div>
-                            <div class="license-type-btn" data-type="lifetime" onclick="selectLicenseType('lifetime')">
-                                <i class="fas fa-infinity"></i>
-                                <span>Навсегда</span>
-                            </div>
-                        </div>
-                        <input type="hidden" id="keyType" value="1day">
-                    </div>
-                    <div class="form-group">
-                        <label>Количество (1-100):</label>
-                        <input type="number" id="keyCount" class="form-control" min="1" max="100" value="1">
-                    </div>
-                    <button class="btn" onclick="generateKeys()">Сгенерировать</button>
-                    <div id="generatedKeysContainer"></div>
-                </div>
-            </section>
-            
-            <!-- All Keys Section -->
-            <section id="keys" class="content-section">
-                <h1>Все ключи</h1>
-                <div id="keysContainer"></div>
-            </section>
-            
-            <!-- Bans Section -->
-            <section id="bans" class="content-section">
-                <h1>Система банов</h1>
-                <div class="ban-forms">
-                    <div class="ban-form">
-                        <h3>Бан по логину</h3>
-                        <div class="form-group">
-                            <input type="text" id="banUsername" class="form-control" placeholder="Логин пользователя">
-                        </div>
-                        <div class="form-group">
-                            <select id="banDuration" class="form-control">
-                                <option value="1">1 час</option>
-                                <option value="24">1 день</option>
-                                <option value="168">7 дней</option>
-                                <option value="720">30 дней</option>
-                                <option value="permanent">Навсегда</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="banReason" class="form-control" placeholder="Причина бана">
-                        </div>
-                        <button class="btn btn-danger" onclick="banUser()">Забанить</button>
-                    </div>
-                    
-                    <div class="ban-form">
-                        <h3>Бан по IP</h3>
-                        <div class="form-group">
-                            <input type="text" id="banIP" class="form-control" placeholder="IP адрес">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="banIPReason" class="form-control" placeholder="Причина бана">
-                        </div>
-                        <button class="btn btn-danger" onclick="banIP()">Забанить IP</button>
-                    </div>
-                </div>
-                <div id="bansContainer"></div>
-            </section>
-        </main>
+        </div>
     </div>
-
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Firebase Config -->
     <script>
-        // Inline Firebase config to avoid loading issues
         const firebaseConfig = {
             apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
             authDomain: "forever-client.firebaseapp.com",
@@ -706,10 +87,703 @@
             messagingSenderId: "639676123653",
             appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
         };
-        window.firebaseConfig = firebaseConfig;
-        console.log('✅ Firebase config загружен (inline)');
+        
+        let db, usersData = {}, ticketsData = [], licensesData = [], bansData = [];
+        let currentTab = 'overview', selectedLicenseType = '30days', selectedPaymentType = 'paid';
+        
+        const typeNames = {
+            '1day': '1 день', '7days': '7 дней', '30days': '30 дней',
+            '90days': '90 дней', 'beta': 'Бета', 'lifetime': 'Навсегда'
+        };
+        
+        // Check access
+        const sessionData = localStorage.getItem('forever_session');
+        if (!sessionData) {
+            alert('⛔ Требуется авторизация!');
+            window.location.href = '../index.html';
+            throw new Error('No session');
+        }
+        
+        const session = JSON.parse(sessionData);
+        if (session.username !== 'admin' && session.username !== 'Helper') {
+            alert('⛔ Доступ запрещен!');
+            window.location.href = '../index.html';
+            throw new Error('Access denied');
+        }
+        
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        
+        window.addEventListener('load', () => loadData());
+        
+        async function loadData() {
+            try {
+                const [users, tickets, licenses, bans] = await Promise.all([
+                    db.collection('users').get(),
+                    db.collection('tickets').get(),
+                    db.collection('licenses').get(),
+                    db.collection('bans').get()
+                ]);
+                
+                usersData = {};
+                users.forEach(doc => usersData[doc.id] = doc.data());
+                
+                ticketsData = [];
+                tickets.forEach(doc => ticketsData.push({ id: doc.id, ...doc.data() }));
+                
+                licensesData = [];
+                licenses.forEach(doc => licensesData.push({ key: doc.id, ...doc.data() }));
+                
+                bansData = [];
+                bans.forEach(doc => bansData.push({ id: doc.id, ...doc.data() }));
+                
+                renderData();
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                        Ошибка: ${error.message}
+                        <br><br>
+                        <button class="btn" onclick="location.reload()">Перезагрузить</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function showTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderData();
+        }
+        
+        function renderData() {
+            const content = document.getElementById('content');
+            let html = '';
+            
+            if (currentTab === 'overview') {
+                html = `
+                    <div class="stats">
+                        <div class="stat-card"><div class="stat-value">${Object.keys(usersData).length}</div><div class="stat-label">Пользователей</div></div>
+                        <div class="stat-card"><div class="stat-value">${ticketsData.length}</div><div class="stat-label">Тикетов</div></div>
+                        <div class="stat-card"><div class="stat-value">${licensesData.length}</div><div class="stat-label">Лицензий</div></div>
+                        <div class="stat-card"><div class="stat-value">${bansData.length}</div><div class="stat-label">Банов</div></div>
+                    </div>
+                    <div class="section">
+                        <h2>📊 Быстрый обзор</h2>
+                        <div style="color: rgba(255,255,255,0.8); line-height: 2;">
+                            <div>✅ Система работает нормально</div>
+                            <div>👥 Зарегистрировано: ${Object.keys(usersData).length}</div>
+                            <div>🎫 Открытых тикетов: ${ticketsData.filter(t => t.status !== 'closed').length}</div>
+                            <div>🔑 Неактивированных ключей: ${licensesData.filter(l => !l.used).length}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'userinfo') {
+                html = `
+                    <div class="section">
+                        <h2>🔍 Информация о пользователе</h2>
+                        <div class="form-group">
+                            <label>Введите логин:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="searchUsername" placeholder="Логин" style="flex: 1;">
+                                <button class="btn" onclick="searchUser()"><i class="fas fa-search"></i> Найти</button>
+                            </div>
+                        </div>
+                        <div id="userSearchResult"></div>
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'users') {
+                html = `
+                    <div class="section">
+                        <h2>👥 Все пользователи (${Object.keys(usersData).length})</h2>
+                        <div class="users-grid">
+                            ${Object.entries(usersData).map(([username, user]) => `
+                                <div class="user-card">
+                                    <div class="user-name">${username}</div>
+                                    <div class="user-info">
+                                        <div><strong>Email:</strong> ${user.email}</div>
+                                        <div><strong>Роль:</strong> ${user.role || 'user'}</div>
+                                        <div><strong>IP:</strong> ${user.ip || 'Не определен'}</div>
+                                        <div><strong>Регистрация:</strong> ${new Date(user.createdAt).toLocaleString('ru-RU')}</div>
+                                        <div><strong>Лицензий:</strong> ${user.licenses ? user.licenses.length : 0}</div>
+                                    </div>
+                                    <button class="btn btn-danger" onclick="deleteUser('${username}')" style="width: 100%;">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'tickets') {
+                const statusNames = { 'pending': 'В ожидании', 'reviewing': 'Рассматривается', 'waiting_response': 'Ожидание ответа', 'ready': 'Готово', 'closed': 'Закрыт' };
+                html = `
+                    <div class="section">
+                        <h2>🎫 Все тикеты (${ticketsData.length})</h2>
+                        ${ticketsData.length === 0 ? '<p style="color: rgba(255,255,255,0.6);">Тикетов нет</p>' : 
+                            ticketsData.map(ticket => `
+                                <div class="ticket-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                        <div class="user-name">${ticket.subject}</div>
+                                        <select class="ticket-status" onchange="changeTicketStatus('${ticket.id}', this.value)">
+                                            ${Object.entries(statusNames).map(([v, l]) => `<option value="${v}" ${ticket.status === v ? 'selected' : ''}>${l}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="user-info">
+                                        <div><strong>От:</strong> ${ticket.username}</div>
+                                        <div><strong>Создан:</strong> ${new Date(ticket.createdAt).toLocaleString('ru-RU')}</div>
+                                        <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">${ticket.message}</div>
+                                        ${ticket.responses && ticket.responses.length > 0 ? `
+                                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                                <strong>Ответы (${ticket.responses.length}):</strong>
+                                                ${ticket.responses.map(r => `
+                                                    <div style="margin-top: 10px; padding: 10px; background: rgba(74, 144, 226, 0.1); border-left: 3px solid #4A90E2; border-radius: 4px;">
+                                                        <div style="color: #4A90E2; font-weight: 600;">${r.from}</div>
+                                                        <div style="color: rgba(255,255,255,0.9); margin-top: 5px;">${r.message}</div>
+                                                        <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px;">${new Date(r.date).toLocaleString('ru-RU')}</div>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <input type="text" id="response_${ticket.id}" class="response-input" placeholder="Ваш ответ...">
+                                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                        <button class="btn" onclick="respondToTicket('${ticket.id}')" style="flex: 1;"><i class="fas fa-reply"></i> Ответить</button>
+                                        <button class="btn btn-danger" onclick="deleteTicket('${ticket.id}')"><i class="fas fa-trash"></i> Удалить</button>
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'keygen') {
+                html = `
+                    <div class="section">
+                        <h2>🔑 Генератор лицензий</h2>
+                        <div class="form-group">
+                            <label>Тип лицензии:</label>
+                            <div class="license-types">
+                                ${['1day', '7days', '30days', '90days', 'beta', 'lifetime'].map(type => 
+                                    `<div class="license-type-btn ${selectedLicenseType === type ? 'active' : ''}" onclick="selectLicenseType('${type}')">${typeNames[type]}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип выдачи:</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div class="license-type-btn ${selectedPaymentType === 'paid' ? 'active' : ''}" onclick="selectPaymentType('paid')">💰 Платно</div>
+                                <div class="license-type-btn ${selectedPaymentType === 'free' ? 'active' : ''}" onclick="selectPaymentType('free')">🎁 Бесплатно</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Количество (1-100):</label>
+                            <input type="number" id="keyCount" min="1" max="100" value="1">
+                        </div>
+                        <button class="btn" onclick="generateKeys()" style="width: 100%;"><i class="fas fa-key"></i> Сгенерировать</button>
+                        <div id="generatedKeysContainer"></div>
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'allkeys') {
+                html = `
+                    <div class="section">
+                        <h2>📋 Все лицензии (${licensesData.length})</h2>
+                        <div style="display: grid; gap: 15px;">
+                            ${licensesData.map(license => `
+                                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: 600; color: #4A90E2;">${license.key}</div>
+                                        <div style="display: flex; gap: 10px;">
+                                            <div style="padding: 5px 12px; background: ${license.paymentType === 'free' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 193, 7, 0.2)'}; color: ${license.paymentType === 'free' ? '#4CAF50' : '#FFC107'}; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                ${license.paymentType === 'free' ? '🎁 Бесплатно' : '💰 Платно'}
+                                            </div>
+                                            <div style="padding: 5px 12px; background: ${license.used ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 152, 0, 0.2)'}; color: ${license.used ? '#4CAF50' : '#FF9800'}; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                                ${license.used ? 'Активирован' : 'Не активирован'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 10px; color: rgba(255,255,255,0.7); font-size: 14px;">
+                                        <div><strong>Тип:</strong> ${typeNames[license.type] || license.type}</div>
+                                        <div><strong>Создан:</strong> ${new Date(license.createdAt).toLocaleString('ru-RU')}</div>
+                                        ${license.used ? `<div><strong>Активирован:</strong> ${license.activatedBy} (${new Date(license.activatedAt).toLocaleString('ru-RU')})</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            else if (currentTab === 'bans') {
+                html = `
+                    <div class="section">
+                        <h2>⛔ Система банов</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                            <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                                <h3 style="margin-bottom: 20px; color: #4A90E2;">Забанить пользователя</h3>
+                                <div class="form-group">
+                                    <label>Логин:</label>
+                                    <input type="text" id="banUsername" placeholder="Логин">
+                                </div>
+                                <div class="form-group">
+                                    <label>Длительность:</label>
+                                    <select id="banDuration">
+                                        <option value="1">1 час</option>
+                                        <option value="24">24 часа</option>
+                                        <option value="168">7 дней</option>
+                                        <option value="720">30 дней</option>
+                                        <option value="permanent">Навсегда</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Причина:</label>
+                                    <textarea id="banReason" placeholder="Причина"></textarea>
+                                </div>
+                                <button class="btn btn-danger" onclick="banUser()" style="width: 100%;"><i class="fas fa-ban"></i> Забанить</button>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                                <h3 style="margin-bottom: 20px; color: #4A90E2;">Забанить IP</h3>
+                                <div class="form-group">
+                                    <label>IP:</label>
+                                    <input type="text" id="banIP" placeholder="IP адрес">
+                                </div>
+                                <div class="form-group">
+                                    <label>Причина:</label>
+                                    <textarea id="banIPReason" placeholder="Причина"></textarea>
+                                </div>
+                                <button class="btn btn-danger" onclick="banIPAddress()" style="width: 100%;"><i class="fas fa-ban"></i> Забанить IP</button>
+                            </div>
+                        </div>
+                        <h3 style="margin-bottom: 20px;">Активные баны (${bansData.length})</h3>
+                        ${bansData.length === 0 ? '<p style="color: rgba(255,255,255,0.6);">Банов нет</p>' : 
+                            bansData.map(ban => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 15px;">
+                                    <div>
+                                        <div><strong>${ban.type === 'username' ? 'Логин' : 'IP'}:</strong> ${ban.value}</div>
+                                        <div><strong>Причина:</strong> ${ban.reason}</div>
+                                        <div><strong>До:</strong> ${ban.until === 'permanent' ? 'Навсегда' : new Date(ban.until).toLocaleString('ru-RU')}</div>
+                                    </div>
+                                    <button class="btn" style="background: #4CAF50;" onclick="unban('${ban.id}')"><i class="fas fa-check"></i> Разбанить</button>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+        }
+        
+        function selectLicenseType(type) {
+            selectedLicenseType = type;
+            renderData();
+        }
+        
+        function selectPaymentType(type) {
+            selectedPaymentType = type;
+            renderData();
+        }
+        
+        function generateLicenseKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let key = '';
+            for (let i = 0; i < 4; i++) {
+                if (i > 0) key += '-';
+                for (let j = 0; j < 4; j++) {
+                    key += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+            }
+            return key;
+        }
+        
+        async function generateKeys() {
+            const count = parseInt(document.getElementById('keyCount').value);
+            if (count < 1 || count > 100) {
+                alert('❌ Количество от 1 до 100');
+                return;
+            }
+            
+            const keys = [];
+            try {
+                for (let i = 0; i < count; i++) {
+                    const key = generateLicenseKey();
+                    await db.collection('licenses').doc(key).set({
+                        type: selectedLicenseType,
+                        paymentType: selectedPaymentType,
+                        used: false,
+                        createdAt: new Date().toISOString(),
+                        createdBy: session.username
+                    });
+                    keys.push(key);
+                }
+                
+                document.getElementById('generatedKeysContainer').innerHTML = `
+                    <div class="generated-keys">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <strong style="color: #4CAF50;">✅ Сгенерировано: ${count} (${selectedPaymentType === 'free' ? '🎁 Бесплатно' : '💰 Платно'})</strong>
+                            <button class="btn" onclick="copyKeys(\`${keys.join('\\n')}\`)"><i class="fas fa-copy"></i> Копировать</button>
+                        </div>
+                        ${keys.map(key => `<div class="key-item">${key}</div>`).join('')}
+                    </div>
+                `;
+                
+                alert(`✅ Сгенерировано ${count} ключей`);
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        function copyKeys(text) {
+            navigator.clipboard.writeText(text).then(() => alert('✅ Скопировано'));
+        }
+        
+        async function searchUser() {
+            const username = document.getElementById('searchUsername').value.trim();
+            if (!username) {
+                alert('❌ Введите логин');
+                return;
+            }
+            
+            if (!usersData[username]) {
+                document.getElementById('userSearchResult').innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                        Пользователь "${username}" не найден
+                    </div>
+                `;
+                return;
+            }
+            
+            const user = usersData[username];
+            const userLicenses = licensesData.filter(l => l.activatedBy === username);
+            const userTickets = ticketsData.filter(t => t.username === username);
+            const freeLicenses = userLicenses.filter(l => l.paymentType === 'free');
+            const paidLicenses = userLicenses.filter(l => l.paymentType === 'paid' || !l.paymentType);
+            
+            const hasLifetime = userLicenses.some(l => l.type === 'lifetime');
+            const has90days = userLicenses.some(l => l.type === '90days');
+            const has30days = userLicenses.some(l => l.type === '30days');
+            const has7days = userLicenses.some(l => l.type === '7days');
+            const hasBeta = userLicenses.some(l => l.type === 'beta');
+            
+            document.getElementById('userSearchResult').innerHTML = `
+                <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
+                    <h3 style="color: #4A90E2; margin-bottom: 20px; font-size: 28px;"><i class="fas fa-user"></i> ${username}</h3>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <h4 style="color: #4A90E2; margin-bottom: 15px;">📋 Основная информация</h4>
+                            <div style="color: rgba(255,255,255,0.8); line-height: 2;">
+                                <div><strong>Email:</strong> ${user.email}</div>
+                                <div><strong>Роль:</strong> ${user.role || 'user'}</div>
+                                <div><strong>IP:</strong> ${user.ip || 'Не определен'}</div>
+                                <div><strong>HWID:</strong> ${user.hwid || 'Не привязан'}</div>
+                                <div><strong>Регистрация:</strong> ${new Date(user.createdAt).toLocaleString('ru-RU')}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <h4 style="color: #4A90E2; margin-bottom: 15px;">🎫 Подписки</h4>
+                            <div style="color: rgba(255,255,255,0.8); line-height: 2;">
+                                <div>Навсегда: ${hasLifetime ? '✅' : '❌'}</div>
+                                <div>90 дней: ${has90days ? '✅' : '❌'}</div>
+                                <div>30 дней: ${has30days ? '✅' : '❌'}</div>
+                                <div>7 дней: ${has7days ? '✅' : '❌'}</div>
+                                <div>Бета: ${hasBeta ? '✅' : '❌'}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
+                            <h4 style="color: #4A90E2; margin-bottom: 15px;">💰 Покупки</h4>
+                            <div style="color: rgba(255,255,255,0.8); line-height: 2;">
+                                <div>Всего лицензий: ${userLicenses.length}</div>
+                                <div>Платных: ${paidLicenses.length}</div>
+                                <div>Бесплатных: ${freeLicenses.length}</div>
+                                <div>Тикетов: ${userTickets.length}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(74, 144, 226, 0.1); padding: 20px; border-radius: 12px; border: 1px solid #4A90E2; margin-bottom: 20px;">
+                        <h4 style="color: #4A90E2; margin-bottom: 15px;">➕ Выдать подписку</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <button class="btn" onclick="grantSubscription('${username}', '30days')"><i class="fas fa-gift"></i> 30 дней</button>
+                            <button class="btn" onclick="grantSubscription('${username}', '90days')"><i class="fas fa-gift"></i> 90 дней</button>
+                            <button class="btn" onclick="grantSubscription('${username}', 'lifetime')"><i class="fas fa-gift"></i> Навсегда</button>
+                            <button class="btn" onclick="grantSubscription('${username}', 'beta')"><i class="fas fa-gift"></i> Бета</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(244, 67, 54, 0.1); padding: 20px; border-radius: 12px; border: 1px solid #F44336;">
+                        <h4 style="color: #F44336; margin-bottom: 15px;">➖ Изъять подписку</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                            <button class="btn btn-danger" onclick="revokeSubscription('${username}', '30days')"><i class="fas fa-minus"></i> 30 дней</button>
+                            <button class="btn btn-danger" onclick="revokeSubscription('${username}', '90days')"><i class="fas fa-minus"></i> 90 дней</button>
+                            <button class="btn btn-danger" onclick="revokeSubscription('${username}', 'lifetime')"><i class="fas fa-minus"></i> Навсегда</button>
+                            <button class="btn btn-danger" onclick="revokeSubscription('${username}', 'beta')"><i class="fas fa-minus"></i> Бета</button>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Изъять на N дней:</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="revokeDays" placeholder="Дней" min="1" style="flex: 1;">
+                                <button class="btn btn-danger" onclick="revokeDays('${username}')"><i class="fas fa-minus"></i> Изъять</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${userLicenses.length > 0 ? `
+                        <div style="margin-top: 20px;">
+                            <h4 style="color: #4A90E2; margin-bottom: 15px;">🔑 Активированные лицензии (${userLicenses.length})</h4>
+                            ${userLicenses.map(license => `
+                                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                    <div style="font-family: 'Courier New', monospace; color: #4A90E2; font-weight: 600; margin-bottom: 5px;">${license.key}</div>
+                                    <div style="color: rgba(255,255,255,0.6); font-size: 14px;">
+                                        ${typeNames[license.type]} • ${license.paymentType === 'free' ? '🎁 Бесплатно' : '💰 Платно'} • ${new Date(license.activatedAt || license.createdAt).toLocaleDateString('ru-RU')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        async function grantSubscription(username, type) {
+            if (!confirm(`Выдать подписку "${typeNames[type]}" пользователю ${username}?`)) return;
+            
+            try {
+                const key = generateLicenseKey();
+                const licenseData = {
+                    type: type,
+                    paymentType: 'free',
+                    used: true,
+                    activatedBy: username,
+                    activatedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                    createdBy: session.username,
+                    grantedDirectly: true
+                };
+                
+                await db.collection('licenses').doc(key).set(licenseData);
+                
+                const userLicenses = usersData[username].licenses || [];
+                userLicenses.push(key);
+                await db.collection('users').doc(username).update({ licenses: userLicenses });
+                
+                alert('✅ Подписка выдана');
+                await loadData();
+                searchUser();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function revokeSubscription(username, type) {
+            if (!confirm(`Изъять подписку "${typeNames[type]}" у ${username}?`)) return;
+            
+            try {
+                const userLicenses = licensesData.filter(l => l.activatedBy === username && l.type === type);
+                if (userLicenses.length === 0) {
+                    alert('❌ У пользователя нет такой подписки');
+                    return;
+                }
+                
+                const license = userLicenses[0];
+                await db.collection('licenses').doc(license.key).delete();
+                
+                const updatedLicenses = (usersData[username].licenses || []).filter(k => k !== license.key);
+                await db.collection('users').doc(username).update({ licenses: updatedLicenses });
+                
+                alert('✅ Подписка изъята');
+                await loadData();
+                searchUser();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function revokeDays(username) {
+            const days = parseInt(document.getElementById('revokeDays').value);
+            if (!days || days < 1) {
+                alert('❌ Введите количество дней');
+                return;
+            }
+            
+            if (!confirm(`Изъять подписку на ${days} дней у ${username}?`)) return;
+            
+            try {
+                const type = days <= 1 ? '1day' : days <= 7 ? '7days' : days <= 30 ? '30days' : '90days';
+                await revokeSubscription(username, type);
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function deleteUser(username) {
+            if (!confirm(`Удалить ${username}?`)) return;
+            try {
+                await db.collection('users').doc(username).delete();
+                alert('✅ Удален');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function deleteTicket(ticketId) {
+            if (!confirm('Удалить тикет?')) return;
+            try {
+                await db.collection('tickets').doc(ticketId).delete();
+                alert('✅ Удален');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function changeTicketStatus(ticketId, newStatus) {
+            try {
+                await db.collection('tickets').doc(ticketId).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                });
+                alert('✅ Статус обновлен');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function respondToTicket(ticketId) {
+            const input = document.getElementById(`response_${ticketId}`);
+            const message = input.value.trim();
+            if (!message) {
+                alert('❌ Введите ответ');
+                return;
+            }
+            
+            try {
+                await db.collection('tickets').doc(ticketId).update({
+                    responses: firebase.firestore.FieldValue.arrayUnion({
+                        from: session.username,
+                        message: message,
+                        date: new Date().toISOString()
+                    }),
+                    updatedAt: new Date().toISOString()
+                });
+                
+                input.value = '';
+                alert('✅ Ответ отправлен');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function banUser() {
+            const username = document.getElementById('banUsername').value.trim();
+            const duration = document.getElementById('banDuration').value;
+            const reason = document.getElementById('banReason').value.trim();
+            
+            if (!username || !reason) {
+                alert('❌ Заполните все поля');
+                return;
+            }
+            
+            if (!usersData[username]) {
+                alert('❌ Пользователь не найден');
+                return;
+            }
+            
+            const banUntil = duration === 'permanent' ? 'permanent' : 
+                new Date(Date.now() + parseInt(duration) * 60 * 60 * 1000).toISOString();
+            
+            try {
+                await db.collection('users').doc(username).update({
+                    banned: true,
+                    bannedUntil: banUntil,
+                    banReason: reason
+                });
+                
+                await db.collection('bans').doc('ban_' + Date.now()).set({
+                    type: 'username',
+                    value: username,
+                    reason: reason,
+                    until: banUntil,
+                    createdAt: new Date().toISOString(),
+                    createdBy: session.username
+                });
+                
+                document.getElementById('banUsername').value = '';
+                document.getElementById('banReason').value = '';
+                alert('✅ Забанен');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function banIPAddress() {
+            const ip = document.getElementById('banIP').value.trim();
+            const reason = document.getElementById('banIPReason').value.trim();
+            
+            if (!ip || !reason) {
+                alert('❌ Заполните все поля');
+                return;
+            }
+            
+            try {
+                await db.collection('bans').doc('ban_ip_' + Date.now()).set({
+                    type: 'ip',
+                    value: ip,
+                    reason: reason,
+                    until: 'permanent',
+                    createdAt: new Date().toISOString(),
+                    createdBy: session.username
+                });
+                
+                document.getElementById('banIP').value = '';
+                document.getElementById('banIPReason').value = '';
+                alert('✅ IP забанен');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
+        
+        async function unban(banId) {
+            if (!confirm('Снять бан?')) return;
+            try {
+                const banDoc = await db.collection('bans').doc(banId).get();
+                const ban = banDoc.data();
+                
+                await db.collection('bans').doc(banId).delete();
+                
+                if (ban.type === 'username') {
+                    await db.collection('users').doc(ban.value).update({
+                        banned: false,
+                        bannedUntil: null,
+                        banReason: null
+                    });
+                }
+                
+                alert('✅ Разбанен');
+                await loadData();
+            } catch (error) {
+                alert('❌ Ошибка: ' + error.message);
+            }
+        }
     </script>
-    
-    <script src="panel.js"></script>
 </body>
 </html>
