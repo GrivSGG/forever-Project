@@ -471,11 +471,54 @@
             const freeLicenses = userLicenses.filter(l => l.paymentType === 'free');
             const paidLicenses = userLicenses.filter(l => l.paymentType === 'paid' || !l.paymentType);
             
-            const hasLifetime = userLicenses.some(l => l.type === 'lifetime');
-            const has90days = userLicenses.some(l => l.type === '90days');
-            const has30days = userLicenses.some(l => l.type === '30days');
-            const has7days = userLicenses.some(l => l.type === '7days');
-            const hasBeta = userLicenses.some(l => l.type === 'beta');
+            // Calculate subscription info
+            function getSubscriptionInfo(type) {
+                const license = userLicenses.find(l => l.type === type);
+                if (!license) return { has: false, text: '❌ Нет' };
+                
+                const activatedDate = new Date(license.activatedAt || license.createdAt);
+                let expiryDate;
+                let daysTotal;
+                
+                if (type === 'lifetime') {
+                    return { has: true, text: '✅ Навсегда', color: '#4CAF50' };
+                } else if (type === 'beta') {
+                    return { has: true, text: '✅ Есть', color: '#4CAF50' };
+                } else if (type === '1day') {
+                    daysTotal = 1;
+                    expiryDate = new Date(activatedDate.getTime() + 1 * 24 * 60 * 60 * 1000);
+                } else if (type === '7days') {
+                    daysTotal = 7;
+                    expiryDate = new Date(activatedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+                } else if (type === '30days') {
+                    daysTotal = 30;
+                    expiryDate = new Date(activatedDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+                } else if (type === '90days') {
+                    daysTotal = 90;
+                    expiryDate = new Date(activatedDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+                }
+                
+                const now = new Date();
+                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                
+                if (daysLeft <= 0) {
+                    return { has: true, text: '⚠️ Истекла', color: '#F44336' };
+                }
+                
+                const color = daysLeft <= 3 ? '#FF9800' : '#4CAF50';
+                return { 
+                    has: true, 
+                    text: `✅ ${daysTotal} дней (осталось: ${daysLeft} дн.)`,
+                    color: color,
+                    expiry: expiryDate.toLocaleDateString('ru-RU')
+                };
+            }
+            
+            const sub30 = getSubscriptionInfo('30days');
+            const sub90 = getSubscriptionInfo('90days');
+            const sub7 = getSubscriptionInfo('7days');
+            const subLifetime = getSubscriptionInfo('lifetime');
+            const subBeta = getSubscriptionInfo('beta');
             
             document.getElementById('userSearchResult').innerHTML = `
                 <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
@@ -496,11 +539,11 @@
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
                             <h4 style="color: #4A90E2; margin-bottom: 15px;">🎫 Подписки</h4>
                             <div style="color: rgba(255,255,255,0.8); line-height: 2;">
-                                <div>Навсегда: ${hasLifetime ? '✅' : '❌'}</div>
-                                <div>90 дней: ${has90days ? '✅' : '❌'}</div>
-                                <div>30 дней: ${has30days ? '✅' : '❌'}</div>
-                                <div>7 дней: ${has7days ? '✅' : '❌'}</div>
-                                <div>Бета: ${hasBeta ? '✅' : '❌'}</div>
+                                <div style="color: ${subLifetime.color || 'inherit'};">Навсегда: ${subLifetime.text}</div>
+                                <div style="color: ${sub90.color || 'inherit'};">90 дней: ${sub90.text}${sub90.expiry ? ' (до ' + sub90.expiry + ')' : ''}</div>
+                                <div style="color: ${sub30.color || 'inherit'};">30 дней: ${sub30.text}${sub30.expiry ? ' (до ' + sub30.expiry + ')' : ''}</div>
+                                <div style="color: ${sub7.color || 'inherit'};">7 дней: ${sub7.text}${sub7.expiry ? ' (до ' + sub7.expiry + ')' : ''}</div>
+                                <div style="color: ${subBeta.color || 'inherit'};">Бета: ${subBeta.text}</div>
                             </div>
                         </div>
                         
