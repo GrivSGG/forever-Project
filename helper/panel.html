@@ -474,7 +474,7 @@
             // Calculate subscription info
             function getSubscriptionInfo(type) {
                 const license = userLicenses.find(l => l.type === type);
-                if (!license) return { has: false, text: '❌ Нет' };
+                if (!license) return { has: false, text: '❌ Нет подписки', color: '#F44336' };
                 
                 const activatedDate = new Date(license.activatedAt || license.createdAt);
                 let expiryDate;
@@ -483,7 +483,7 @@
                 if (type === 'lifetime') {
                     return { has: true, text: '✅ Навсегда', color: '#4CAF50' };
                 } else if (type === 'beta') {
-                    return { has: true, text: '✅ Есть', color: '#4CAF50' };
+                    return { has: true, text: '✅ Есть доступ', color: '#4CAF50' };
                 } else if (type === '1day') {
                     daysTotal = 1;
                     expiryDate = new Date(activatedDate.getTime() + 1 * 24 * 60 * 60 * 1000);
@@ -502,7 +502,7 @@
                 const timeLeft = expiryDate - now;
                 
                 if (timeLeft <= 0) {
-                    return { has: true, text: '⚠️ Истекла', color: '#F44336' };
+                    return { has: true, text: `⚠️ Подписка на ${daysTotal} дней истекла`, color: '#F44336' };
                 }
                 
                 const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -517,9 +517,10 @@
                 };
             }
             
+            const sub1 = getSubscriptionInfo('1day');
+            const sub7 = getSubscriptionInfo('7days');
             const sub30 = getSubscriptionInfo('30days');
             const sub90 = getSubscriptionInfo('90days');
-            const sub7 = getSubscriptionInfo('7days');
             const subLifetime = getSubscriptionInfo('lifetime');
             const subBeta = getSubscriptionInfo('beta');
             
@@ -542,11 +543,24 @@
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
                             <h4 style="color: #4A90E2; margin-bottom: 15px;">🎫 Подписки</h4>
                             <div style="color: rgba(255,255,255,0.8); line-height: 2.2; font-size: 14px;">
-                                <div style="color: ${subLifetime.color || 'inherit'};">${subLifetime.text}</div>
-                                <div style="color: ${sub90.color || 'inherit'};">${sub90.text}</div>
-                                <div style="color: ${sub30.color || 'inherit'};">${sub30.text}</div>
-                                <div style="color: ${sub7.color || 'inherit'};">${sub7.text}</div>
-                                <div style="color: ${subBeta.color || 'inherit'};">${subBeta.text}</div>
+                                <div style="color: ${subLifetime.color || 'inherit'};">
+                                    <strong>Навсегда:</strong> ${subLifetime.text}
+                                </div>
+                                <div style="color: ${sub90.color || 'inherit'};">
+                                    <strong>90 дней:</strong> ${sub90.text}
+                                </div>
+                                <div style="color: ${sub30.color || 'inherit'};">
+                                    <strong>30 дней:</strong> ${sub30.text}
+                                </div>
+                                <div style="color: ${sub7.color || 'inherit'};">
+                                    <strong>7 дней:</strong> ${sub7.text}
+                                </div>
+                                <div style="color: ${sub1.color || 'inherit'};">
+                                    <strong>1 день:</strong> ${sub1.text}
+                                </div>
+                                <div style="color: ${subBeta.color || 'inherit'};">
+                                    <strong>Бета:</strong> ${subBeta.text}
+                                </div>
                             </div>
                         </div>
                         
