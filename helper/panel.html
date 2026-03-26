@@ -499,16 +499,19 @@
                 }
                 
                 const now = new Date();
-                const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                const timeLeft = expiryDate - now;
                 
-                if (daysLeft <= 0) {
+                if (timeLeft <= 0) {
                     return { has: true, text: '⚠️ Истекла', color: '#F44336' };
                 }
+                
+                const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 
                 const color = daysLeft <= 3 ? '#FF9800' : '#4CAF50';
                 return { 
                     has: true, 
-                    text: `✅ ${daysTotal} дней (осталось: ${daysLeft} дн.)`,
+                    text: `✅ Подписка на ${daysTotal} дней<br>Осталось: ${daysLeft} дней ${hoursLeft} часов`,
                     color: color,
                     expiry: expiryDate.toLocaleDateString('ru-RU')
                 };
@@ -538,12 +541,12 @@
                         
                         <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 12px;">
                             <h4 style="color: #4A90E2; margin-bottom: 15px;">🎫 Подписки</h4>
-                            <div style="color: rgba(255,255,255,0.8); line-height: 2;">
-                                <div style="color: ${subLifetime.color || 'inherit'};">Навсегда: ${subLifetime.text}</div>
-                                <div style="color: ${sub90.color || 'inherit'};">90 дней: ${sub90.text}${sub90.expiry ? ' (до ' + sub90.expiry + ')' : ''}</div>
-                                <div style="color: ${sub30.color || 'inherit'};">30 дней: ${sub30.text}${sub30.expiry ? ' (до ' + sub30.expiry + ')' : ''}</div>
-                                <div style="color: ${sub7.color || 'inherit'};">7 дней: ${sub7.text}${sub7.expiry ? ' (до ' + sub7.expiry + ')' : ''}</div>
-                                <div style="color: ${subBeta.color || 'inherit'};">Бета: ${subBeta.text}</div>
+                            <div style="color: rgba(255,255,255,0.8); line-height: 2.2; font-size: 14px;">
+                                <div style="color: ${subLifetime.color || 'inherit'};">${subLifetime.text}</div>
+                                <div style="color: ${sub90.color || 'inherit'};">${sub90.text}</div>
+                                <div style="color: ${sub30.color || 'inherit'};">${sub30.text}</div>
+                                <div style="color: ${sub7.color || 'inherit'};">${sub7.text}</div>
+                                <div style="color: ${subBeta.color || 'inherit'};">${subBeta.text}</div>
                             </div>
                         </div>
                         
