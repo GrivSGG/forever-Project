@@ -613,52 +613,64 @@ function renderAllKeys() {
 }
 
 // Initialize background on load
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
     console.log('✅ Страница загружена');
     createBackground();
     
-    // Check authentication first
-    checkHelperAccess();
-    
-    // Wait for Firebase SDK to load
-    setTimeout(() => {
-        if (initFirebase()) {
-            loadAllData();
-        } else {
-            console.error('❌ Не удалось инициализировать Firebase');
-            showErrorScreen('Не удалось подключиться к Firebase. Проверьте консоль для деталей.');
+    try {
+        // Initialize Firebase first
+        if (!initFirebase()) {
+            showErrorScreen('Не удалось подключиться к Firebase');
+            return;
         }
-    }, 500);
+        
+        // Wait a bit for Firebase to be ready
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Check access
+        await checkHelperAccess();
+        
+        // Load data
+        await loadAllData();
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки:', error);
+        showErrorScreen('Ошибка загрузки: ' + error.message);
+    }
 });
 
 // Check if user has helper access
 async function checkHelperAccess() {
     try {
+        console.log('🔵 Проверка доступа...');
+        
         // Get current user from localStorage
         const sessionData = localStorage.getItem('forever_session');
         if (!sessionData) {
+            console.log('❌ Нет сессии');
+            alert('⛔ Необходима авторизация');
             window.location.href = '../index.html';
             return;
         }
         
         const session = JSON.parse(sessionData);
+        console.log('🔵 Проверка пользователя:', session.username);
         
-        // Wait for Firebase to initialize
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const db = firebase.firestore();
         const userDoc = await db.collection('users').doc(session.username).get();
         
         if (!userDoc.exists) {
-            alert('Пользователь не найден');
+            console.log('❌ Пользователь не найден');
+            alert('⛔ Пользователь не найден');
             window.location.href = '../index.html';
             return;
         }
         
         const userData = userDoc.data();
+        console.log('🔵 Роль пользователя:', userData.role);
         
-        // Check if user has helper role
+        // Check if user has helper or admin role
         if (userData.role !== 'helper' && userData.role !== 'admin') {
+            console.log('❌ Недостаточно прав. Роль:', userData.role);
             alert('⛔ Доступ запрещен! Эта панель только для хелперов.');
             window.location.href = '../index.html';
             return;
@@ -668,12 +680,17 @@ async function checkHelperAccess() {
         
     } catch (error) {
         console.error('❌ Ошибка проверки доступа:', error);
-        alert('Ошибка проверки доступа');
+        alert('Ошибка проверки доступа: ' + error.message);
         window.location.href = '../index.html';
     }
 }
 
 function showErrorScreen(message) {
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'none';
+    }
+    
     document.body.innerHTML += `
         <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
              background: rgba(244, 67, 54, 0.9); padding: 30px; border-radius: 15px; 
