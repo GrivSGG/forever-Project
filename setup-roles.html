@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка ролей - Forever Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4A90E2;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4A90E2, #9C27B0);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: scale(1.02);
+        }
+        .info {
+            background: rgba(74, 144, 226, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(74, 144, 226, 0.3);
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #4CAF50;
+            display: none;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #F44336;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Настройка ролей пользователей</h1>
+        
+        <div class="info">
+            <strong>ℹ️ Информация:</strong><br>
+            Эта страница позволяет назначить роли пользователям в Firebase.<br>
+            <strong>admin</strong> - полный доступ<br>
+            <strong>helper</strong> - доступ к helper панели<br>
+            <strong>user</strong> - обычный пользователь
+        </div>
+        
+        <div class="form-group">
+            <label>Логин пользователя:</label>
+            <input type="text" id="username" placeholder="Введите логин">
+        </div>
+        
+        <div class="form-group">
+            <label>Роль:</label>
+            <select id="role">
+                <option value="user">User (обычный пользователь)</option>
+                <option value="helper">Helper (помощник)</option>
+                <option value="admin">Admin (администратор)</option>
+            </select>
+        </div>
+        
+        <button onclick="setRole()">Установить роль</button>
+        <button onclick="checkRole()" style="background: linear-gradient(135deg, #2196F3, #00BCD4);">Проверить роль</button>
+        
+        <div id="successMsg" class="success"></div>
+        <div id="errorMsg" class="error"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        async function setRole() {
+            const username = document.getElementById('username').value.trim();
+            const role = document.getElementById('role').value;
+            
+            if (!username) {
+                showError('Введите логин пользователя');
+                return;
+            }
+            
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
+                
+                if (!userDoc.exists) {
+                    showError('Пользователь не найден');
+                    return;
+                }
+                
+                await db.collection('users').doc(username).update({
+                    role: role
+                });
+                
+                showSuccess(`Роль "${role}" успешно установлена для пользователя "${username}"`);
+                
+            } catch (error) {
+                showError('Ошибка: ' + error.message);
+            }
+        }
+        
+        async function checkRole() {
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                showError('Введите логин пользователя');
+                return;
+            }
+            
+            try {
+                const userDoc = await db.collection('users').doc(username).get();
+                
+                if (!userDoc.exists) {
+                    showError('Пользователь не найден');
+                    return;
+                }
+                
+                const userData = userDoc.data();
+                const role = userData.role || 'user';
+                
+                showSuccess(`Текущая роль пользователя "${username}": ${role}`);
+                
+            } catch (error) {
+                showError('Ошибка: ' + error.message);
+            }
+        }
+        
+        function showSuccess(message) {
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+            
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showError(message) {
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+            
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
