@@ -2,25 +2,57 @@
 // Проверка доступа и функционал
 
 // Проверка авторизации при загрузке
-window.addEventListener('load', () => {
-    const session = auth.checkSession();
-    
-    if (!session || session.role !== 'admin') {
-        auth.showNotification('Доступ запрещен! Требуются права администратора.', 'error');
-        setTimeout(() => {
+window.addEventListener('load', async () => {
+    try {
+        const sessionData = localStorage.getItem('forever_session');
+        
+        if (!sessionData) {
+            alert('⛔ Доступ запрещен! Необходима авторизация.');
             window.location.href = '../index.html';
-        }, 2000);
-        return;
+            return;
+        }
+        
+        const session = JSON.parse(sessionData);
+        
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(window.firebaseConfig);
+        }
+        const db = firebase.firestore();
+        
+        // Check user role in Firebase
+        const userDoc = await db.collection('users').doc(session.username).get();
+        
+        if (!userDoc.exists) {
+            alert('⛔ Пользователь не найден');
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        const userData = userDoc.data();
+        
+        if (userData.role !== 'admin') {
+            alert('⛔ Доступ запрещен! Требуются права администратора.');
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        console.log('✅ Доступ разрешен для админа:', session.username);
+        
+        // Отображение имени админа
+        document.getElementById('adminUsername').textContent = session.username;
+        
+        // Загрузка данных
+        loadDashboardData();
+        loadUsers();
+        loadLicenses();
+        loadHistory();
+        
+    } catch (error) {
+        console.error('❌ Ошибка проверки доступа:', error);
+        alert('Ошибка проверки доступа: ' + error.message);
+        window.location.href = '../index.html';
     }
-    
-    // Отображение имени админа
-    document.getElementById('adminUsername').textContent = session.username;
-    
-    // Загрузка данных
-    loadDashboardData();
-    loadUsers();
-    loadLicenses();
-    loadHistory();
 });
 
 // Переключение секций

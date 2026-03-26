@@ -1,0 +1,89 @@
+// 🔒 БЕЗОПАСНЫЕ ПРАВИЛА FIRESTORE
+// Скопируйте это в Firebase Console → Firestore Database → Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Функция проверки роли пользователя
+    function getUserRole(username) {
+      return get(/databases/$(database)/documents/users/$(username)).data.role;
+    }
+    
+    // Функция проверки что пользователь админ или хелпер
+    function isAdminOrHelper(username) {
+      let role = getUserRole(username);
+      return role == 'admin' || role == 'helper';
+    }
+    
+    // Функция проверки что пользователь админ
+    function isAdmin(username) {
+      return getUserRole(username) == 'admin';
+    }
+    
+    // ПОЛЬЗОВАТЕЛИ
+    match /users/{username} {
+      // Читать могут все авторизованные
+      allow read: if true;
+      
+      // Создавать может кто угодно (регистрация)
+      allow create: if true;
+      
+      // Обновлять может только сам пользователь или админ
+      allow update: if request.resource.data.username == username || 
+                      isAdmin(request.resource.data.username);
+      
+      // Удалять может только админ или хелпер
+      allow delete: if isAdminOrHelper(username);
+    }
+    
+    // ЛИЦЕНЗИИ
+    match /licenses/{licenseKey} {
+      // Читать могут все
+      allow read: if true;
+      
+      // Создавать и изменять могут только админы и хелперы
+      allow create, update: if isAdminOrHelper(request.resource.data.createdBy);
+      
+      // Удалять могут только админы
+      allow delete: if isAdmin(request.resource.data.createdBy);
+    }
+    
+    // ТИКЕТЫ
+    match /tickets/{ticketId} {
+      // Читать может автор тикета, админы и хелперы
+      allow read: if resource.data.username == request.resource.data.username ||
+                    isAdminOrHelper(request.resource.data.username);
+      
+      // Создавать может любой авторизованный
+      allow create: if true;
+      
+      // Обновлять могут админы, хелперы и автор
+      allow update: if resource.data.username == request.resource.data.username ||
+                      isAdminOrHelper(request.resource.data.username);
+      
+      // Удалять могут только админы и хелперы
+      allow delete: if isAdminOrHelper(request.resource.data.username);
+    }
+    
+    // БАНЫ
+    match /bans/{banId} {
+      // Читать могут только админы и хелперы
+      allow read: if isAdminOrHelper(request.resource.data.createdBy);
+      
+      // Создавать, обновлять и удалять могут только админы и хелперы
+      allow create, update, delete: if isAdminOrHelper(request.resource.data.createdBy);
+    }
+  }
+}
+
+// ИНСТРУКЦИЯ ПО ПРИМЕНЕНИЮ:
+// 1. Откройте Firebase Console: https://console.firebase.google.com/
+// 2. Выберите проект "forever-client"
+// 3. Перейдите в Firestore Database → Rules
+// 4. Скопируйте весь этот код
+// 5. Вставьте вместо текущих правил
+// 6. Нажмите "Publish"
+
+// ВАЖНО: Эти правила работают только если у пользователей есть поле "role"
+// Убедитесь что у админа role = "admin", у хелпера role = "helper"

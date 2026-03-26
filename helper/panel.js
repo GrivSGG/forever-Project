@@ -617,25 +617,74 @@ window.addEventListener('load', () => {
     console.log('✅ Страница загружена');
     createBackground();
     
+    // Check authentication first
+    checkHelperAccess();
+    
     // Wait for Firebase SDK to load
     setTimeout(() => {
         if (initFirebase()) {
             loadAllData();
         } else {
             console.error('❌ Не удалось инициализировать Firebase');
-            document.body.innerHTML += `
-                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                     background: rgba(244, 67, 54, 0.9); padding: 30px; border-radius: 15px; 
-                     color: white; text-align: center; z-index: 10000; max-width: 500px;">
-                    <h2 style="margin-bottom: 15px;">❌ Ошибка загрузки</h2>
-                    <p>Не удалось подключиться к Firebase. Проверьте консоль для деталей.</p>
-                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; 
-                            background: white; color: #F44336; border: none; border-radius: 8px; 
-                            cursor: pointer; font-weight: 600;">
-                        Перезагрузить страницу
-                    </button>
-                </div>
-            `;
+            showErrorScreen('Не удалось подключиться к Firebase. Проверьте консоль для деталей.');
         }
     }, 500);
 });
+
+// Check if user has helper access
+async function checkHelperAccess() {
+    try {
+        // Get current user from localStorage
+        const sessionData = localStorage.getItem('forever_session');
+        if (!sessionData) {
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        const session = JSON.parse(sessionData);
+        
+        // Wait for Firebase to initialize
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const db = firebase.firestore();
+        const userDoc = await db.collection('users').doc(session.username).get();
+        
+        if (!userDoc.exists) {
+            alert('Пользователь не найден');
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        const userData = userDoc.data();
+        
+        // Check if user has helper role
+        if (userData.role !== 'helper' && userData.role !== 'admin') {
+            alert('⛔ Доступ запрещен! Эта панель только для хелперов.');
+            window.location.href = '../index.html';
+            return;
+        }
+        
+        console.log('✅ Доступ разрешен для:', session.username);
+        
+    } catch (error) {
+        console.error('❌ Ошибка проверки доступа:', error);
+        alert('Ошибка проверки доступа');
+        window.location.href = '../index.html';
+    }
+}
+
+function showErrorScreen(message) {
+    document.body.innerHTML += `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+             background: rgba(244, 67, 54, 0.9); padding: 30px; border-radius: 15px; 
+             color: white; text-align: center; z-index: 10000; max-width: 500px;">
+            <h2 style="margin-bottom: 15px;">❌ Ошибка загрузки</h2>
+            <p>${message}</p>
+            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; 
+                    background: white; color: #F44336; border: none; border-radius: 8px; 
+                    cursor: pointer; font-weight: 600;">
+                Перезагрузить страницу
+            </button>
+        </div>
+    `;
+}
