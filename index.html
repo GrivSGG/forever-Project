@@ -370,7 +370,43 @@
     <script src="firebase-sync.js"></script>
     
     <!-- App Scripts -->
-    <script src="script.js?v=6"></script>
-    <script src="auth.js?v=6"></script>
+    <script src="script.js?v=7"></script>
+    <script src="auth.js?v=7"></script>
+    
+    <!-- Ban check -->
+    <script>
+        window.addEventListener('load', async () => {
+            const sessionData = localStorage.getItem('forever_session');
+            if (!sessionData) return;
+            
+            const session = JSON.parse(sessionData);
+            
+            try {
+                const db = firebase.firestore();
+                const userDoc = await db.collection('users').doc(session.username).get();
+                
+                if (userDoc.exists) {
+                    const user = userDoc.data();
+                    
+                    if (user.banned) {
+                        const banEnd = user.bannedUntil ? new Date(user.bannedUntil) : null;
+                        
+                        if (!banEnd) {
+                            alert('Ваш аккаунт заблокирован навсегда');
+                            localStorage.removeItem('forever_session');
+                            window.location.reload();
+                        } else if (Date.now() < banEnd.getTime()) {
+                            const timeLeft = Math.ceil((banEnd.getTime() - Date.now()) / (1000 * 60));
+                            alert(`Ваш аккаунт заблокирован до ${banEnd.toLocaleString('ru-RU')}. Осталось: ${timeLeft} минут`);
+                            localStorage.removeItem('forever_session');
+                            window.location.reload();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Ошибка проверки бана:', error);
+            }
+        });
+    </script>
 </body>
 </html>

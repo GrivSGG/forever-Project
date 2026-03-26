@@ -432,12 +432,45 @@
         window.firebaseConfig = firebaseConfig;
         firebase.initializeApp(firebaseConfig);
         
-        // Check if user is logged in
-        window.addEventListener('load', () => {
-            const session = localStorage.getItem('forever_session');
+        // Check if user is logged in and not banned
+        window.addEventListener('load', async () => {
+            const sessionData = localStorage.getItem('forever_session');
             const navButtons = document.getElementById('navButtons');
             
-            if (session) {
+            if (sessionData) {
+                const session = JSON.parse(sessionData);
+                
+                // Check ban status in Firebase
+                try {
+                    const db = firebase.firestore();
+                    const userDoc = await db.collection('users').doc(session.username).get();
+                    
+                    if (userDoc.exists) {
+                        const user = userDoc.data();
+                        
+                        if (user.banned) {
+                            const banEnd = user.bannedUntil ? new Date(user.bannedUntil) : null;
+                            
+                            if (!banEnd) {
+                                // Permanent ban
+                                alert('Ваш аккаунт заблокирован навсегда');
+                                localStorage.removeItem('forever_session');
+                                window.location.href = 'index.html';
+                                return;
+                            } else if (Date.now() < banEnd.getTime()) {
+                                // Temporary ban still active
+                                const timeLeft = Math.ceil((banEnd.getTime() - Date.now()) / (1000 * 60));
+                                alert(`Ваш аккаунт заблокирован до ${banEnd.toLocaleString('ru-RU')}. Осталось: ${timeLeft} минут`);
+                                localStorage.removeItem('forever_session');
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка проверки бана:', error);
+                }
+                
                 navButtons.innerHTML = `
                     <button class="btn-nav" onclick="window.location.href='dashboard.html'">
                         <i class="fas fa-user"></i> Личный кабинет
@@ -454,6 +487,6 @@
             window.location.href = 'index.html';
         }
     </script>
-    <script src="auth.js"></script>
+    <script src="auth.js?v=7"></script>
 </body>
 </html>

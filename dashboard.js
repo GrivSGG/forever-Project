@@ -1,7 +1,7 @@
 // Личный кабинет Forever Client
 
 // Проверка авторизации
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
     const session = auth.checkSession();
     
     if (!session) {
@@ -10,6 +10,41 @@ window.addEventListener('load', () => {
             window.location.href = 'index.html';
         }, 2000);
         return;
+    }
+    
+    // Проверка бана в Firebase
+    try {
+        const db = firebase.firestore();
+        const userDoc = await db.collection('users').doc(session.username).get();
+        
+        if (userDoc.exists) {
+            const user = userDoc.data();
+            
+            if (user.banned) {
+                const banEnd = user.bannedUntil ? new Date(user.bannedUntil) : null;
+                
+                if (!banEnd) {
+                    // Перманентный бан
+                    auth.showNotification('Ваш аккаунт заблокирован навсегда', 'error');
+                    localStorage.removeItem('forever_session');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
+                } else if (Date.now() < banEnd.getTime()) {
+                    // Временный бан еще активен
+                    const timeLeft = Math.ceil((banEnd.getTime() - Date.now()) / (1000 * 60));
+                    auth.showNotification(`Ваш аккаунт заблокирован до ${banEnd.toLocaleString('ru-RU')}. Осталось: ${timeLeft} минут`, 'error');
+                    localStorage.removeItem('forever_session');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('❌ Ошибка проверки бана:', error);
     }
     
     loadUserData(session.username);
