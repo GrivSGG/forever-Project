@@ -109,19 +109,29 @@ function loadLicenses(user) {
     });
 }
 
-// Активация лицензии
-function activateLicense() {
+// Generate HWID helper function
+function generateHWID() {
+    const chars = 'ABCDEF0123456789';
+    let hwid = '';
+    for (let i = 0; i < 32; i++) {
+        hwid += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return hwid;
+}
+
+// Activation functions - GLOBAL
+window.activateLicense = function() {
     document.getElementById('activateModal').classList.add('show');
 }
 
-function closeActivateModal() {
+window.closeActivateModal = function() {
     document.getElementById('activateModal').classList.remove('show');
 }
 
-async function handleActivation(event) {
+window.handleActivation = async function(event) {
     event.preventDefault();
     
-    const key = document.getElementById('licenseKey').value.trim().toUpperCase();
+    const key = document.getElementById('licenseKey').value.trim();
     const session = auth.checkSession();
     
     if (!session) {
@@ -132,7 +142,7 @@ async function handleActivation(event) {
     try {
         const db = firebase.firestore();
         
-        // Check if license exists and not used
+        // Check license
         const licenseDoc = await db.collection('licenses').doc(key).get();
         
         if (!licenseDoc.exists) {
@@ -150,7 +160,7 @@ async function handleActivation(event) {
         // Generate HWID
         const hwid = generateHWID();
         
-        // Calculate expiry date
+        // Calculate expiry
         let expiryDate = null;
         const typeDays = {
             '1day': 1,
@@ -163,7 +173,6 @@ async function handleActivation(event) {
             expiryDate = new Date(Date.now() + typeDays[licenseData.type] * 24 * 60 * 60 * 1000).toISOString();
         }
         
-        // Create license object
         const license = {
             key: key,
             type: licenseData.type,
@@ -172,7 +181,7 @@ async function handleActivation(event) {
             expiryDate: expiryDate
         };
         
-        // Update user in Firebase
+        // Update user
         await db.collection('users').doc(session.username).update({
             licenses: firebase.firestore.FieldValue.arrayUnion(license),
             hwid: hwid
@@ -185,62 +194,44 @@ async function handleActivation(event) {
             activatedAt: new Date().toISOString()
         });
         
-        auth.showNotification('Лицензия успешно активирована!', 'success');
+        auth.showNotification('Лицензия активирована!', 'success');
         closeActivateModal();
         
-        // Reload data
         setTimeout(() => {
             loadUserData(session.username);
         }, 1000);
         
     } catch (error) {
         console.error('❌ Ошибка активации:', error);
-        auth.showNotification('Ошибка активации: ' + error.message, 'error');
+        auth.showNotification('Ошибка: ' + error.message, 'error');
     }
     
     return false;
 }
 
-// Generate HWID
-function generateHWID() {
-    const chars = 'ABCDEF0123456789';
-    let hwid = '';
-    for (let i = 0; i < 32; i++) {
-        hwid += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return hwid;
+window.downloadClient = function() {
+    auth.showNotification('Функция загрузки в разработке', 'info');
 }
 
-// Download client
-function downloadClient() {
-    const session = auth.checkSession();
-    if (!session) {
-        auth.showNotification('Необходимо войти в аккаунт', 'warning');
-        return;
-    }
-    
-    auth.showNotification('Функция загрузки в разработке. Свяжитесь с поддержкой.', 'info');
-}
-
-// Ticket functions
-function showTicketModal() {
+// Ticket modal functions - GLOBAL
+window.showTicketModal = function() {
     document.getElementById('ticketModal').classList.add('show');
 }
 
-function closeTicketModal() {
+window.closeTicketModal = function() {
     document.getElementById('ticketModal').classList.remove('show');
 }
 
-function showViewTicketsModal() {
+window.showViewTicketsModal = function() {
     loadUserTickets();
     document.getElementById('viewTicketsModal').classList.add('show');
 }
 
-function closeViewTicketsModal() {
+window.closeViewTicketsModal = function() {
     document.getElementById('viewTicketsModal').classList.remove('show');
 }
 
-async function submitTicket(event) {
+window.submitTicket = async function(event) {
     event.preventDefault();
     
     const subject = document.getElementById('ticketProblem').value.trim();
@@ -251,7 +242,7 @@ async function submitTicket(event) {
     
     try {
         const db = firebase.firestore();
-        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
         
         await db.collection('tickets').doc(ticketId).set({
             id: ticketId,
@@ -370,7 +361,8 @@ async function loadUserTickets() {
     }
 }
 
-async function sendTicketReply(ticketId) {
+// Send ticket reply - GLOBAL
+window.sendTicketReply = async function(ticketId) {
     const input = document.getElementById(`reply_${ticketId}`);
     const message = input.value.trim();
     
@@ -408,25 +400,25 @@ async function sendTicketReply(ticketId) {
     }
 }
 
-// Ticket modal functions
-function showTicketModal() {
+// Ticket modal functions - GLOBAL
+window.showTicketModal = function() {
     document.getElementById('ticketModal').classList.add('show');
 }
 
-function closeTicketModal() {
+window.closeTicketModal = function() {
     document.getElementById('ticketModal').classList.remove('show');
 }
 
-function showViewTicketsModal() {
+window.showViewTicketsModal = function() {
     loadUserTickets();
     document.getElementById('viewTicketsModal').classList.add('show');
 }
 
-function closeViewTicketsModal() {
+window.closeViewTicketsModal = function() {
     document.getElementById('viewTicketsModal').classList.remove('show');
 }
 
-async function submitTicket(event) {
+window.submitTicket = async function(event) {
     event.preventDefault();
     
     const subject = document.getElementById('ticketProblem').value.trim();
@@ -437,7 +429,7 @@ async function submitTicket(event) {
     
     try {
         const db = firebase.firestore();
-        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const ticketId = 'ticket_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
         
         await db.collection('tickets').doc(ticketId).set({
             id: ticketId,
@@ -462,16 +454,16 @@ async function submitTicket(event) {
     return false;
 }
 
-// Activation functions
-function activateLicense() {
+// Activation functions - GLOBAL
+window.activateLicense = function() {
     document.getElementById('activateModal').classList.add('show');
 }
 
-function closeActivateModal() {
+window.closeActivateModal = function() {
     document.getElementById('activateModal').classList.remove('show');
 }
 
-async function handleActivation(event) {
+window.handleActivation = async function(event) {
     event.preventDefault();
     
     const key = document.getElementById('licenseKey').value.trim();
@@ -552,16 +544,7 @@ async function handleActivation(event) {
     return false;
 }
 
-function generateHWID() {
-    const chars = 'ABCDEF0123456789';
-    let hwid = '';
-    for (let i = 0; i < 32; i++) {
-        hwid += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return hwid;
-}
-
-function downloadClient() {
+window.downloadClient = function() {
     auth.showNotification('Функция загрузки в разработке', 'info');
 }
 
