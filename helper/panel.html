@@ -471,19 +471,27 @@
             const freeLicenses = userLicenses.filter(l => l.paymentType === 'free');
             const paidLicenses = userLicenses.filter(l => l.paymentType === 'paid' || !l.paymentType);
             
+            // Get grant history
+            const grantHistorySnapshot = await db.collection('grantHistory').where('username', '==', username).get();
+            const grantHistory = [];
+            grantHistorySnapshot.forEach(doc => {
+                grantHistory.push({ id: doc.id, ...doc.data() });
+            });
+            grantHistory.sort((a, b) => new Date(b.grantedAt) - new Date(a.grantedAt));
+            
             // Calculate subscription info
             function getSubscriptionInfo(type) {
                 const license = userLicenses.find(l => l.type === type);
-                if (!license) return { has: false, text: '❌ Нет подписки', color: '#F44336' };
+                if (!license) return { has: false, text: 'Нет подписки', color: '#F44336' };
                 
                 const activatedDate = new Date(license.activatedAt || license.createdAt);
                 let expiryDate;
                 let daysTotal;
                 
                 if (type === 'lifetime') {
-                    return { has: true, text: '✅ Навсегда', color: '#4CAF50' };
+                    return { has: true, text: 'Навсегда', color: '#4CAF50' };
                 } else if (type === 'beta') {
-                    return { has: true, text: '✅ Есть доступ', color: '#4CAF50' };
+                    return { has: true, text: 'Есть доступ', color: '#4CAF50' };
                 } else if (type === '1day') {
                     daysTotal = 1;
                     expiryDate = new Date(activatedDate.getTime() + 1 * 24 * 60 * 60 * 1000);
@@ -502,7 +510,7 @@
                 const timeLeft = expiryDate - now;
                 
                 if (timeLeft <= 0) {
-                    return { has: true, text: `⚠️ Подписка на ${daysTotal} дней истекла`, color: '#F44336' };
+                    return { has: true, text: `Подписка на ${daysTotal} дней истекла`, color: '#F44336' };
                 }
                 
                 const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
@@ -511,9 +519,8 @@
                 const color = daysLeft <= 3 ? '#FF9800' : '#4CAF50';
                 return { 
                     has: true, 
-                    text: `✅ Подписка на ${daysTotal} дней<br>Осталось: ${daysLeft} дней ${hoursLeft} часов`,
-                    color: color,
-                    expiry: expiryDate.toLocaleDateString('ru-RU')
+                    text: `Подписка на ${daysTotal} дней, осталось ${daysLeft} дней ${hoursLeft} часов`,
+                    color: color
                 };
             }
             
@@ -615,6 +622,23 @@
                             `).join('')}
                         </div>
                     ` : ''}
+                    
+                    ${grantHistory.length > 0 ? `
+                        <div style="margin-top: 20px;">
+                            <h4 style="color: #4A90E2; margin-bottom: 15px;">📜 История выдачи подписок (${grantHistory.length})</h4>
+                            ${grantHistory.map(grant => `
+                                <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #4A90E2;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <div style="color: #4A90E2; font-weight: 600;">${typeNames[grant.type]}</div>
+                                        <div style="color: rgba(255,255,255,0.5); font-size: 12px;">${new Date(grant.grantedAt).toLocaleString('ru-RU')}</div>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.6); font-size: 14px;">
+                                        Выдал: ${grant.grantedBy} • Ключ: ${grant.licenseKey}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }
@@ -640,6 +664,15 @@
                 const userLicenses = usersData[username].licenses || [];
                 userLicenses.push(key);
                 await db.collection('users').doc(username).update({ licenses: userLicenses });
+                
+                // Save grant history
+                await db.collection('grantHistory').add({
+                    username: username,
+                    type: type,
+                    grantedBy: session.username,
+                    grantedAt: new Date().toISOString(),
+                    licenseKey: key
+                });
                 
                 alert('✅ Подписка выдана');
                 await loadData();
