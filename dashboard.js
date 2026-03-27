@@ -596,3 +596,80 @@ codeStyle.textContent = `
     }
 `;
 document.head.appendChild(codeStyle);
+
+// ============ AVATAR UPLOAD ============
+
+window.uploadAvatar = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const session = auth.checkSession();
+    if (!session) {
+        auth.showNotification('Ошибка сессии', 'error');
+        return;
+    }
+    
+    // Проверка типа файла
+    if (!file.type.startsWith('image/')) {
+        auth.showNotification('Выберите изображение', 'error');
+        return;
+    }
+    
+    // Проверка размера (макс 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        auth.showNotification('Файл слишком большой (макс 2MB)', 'error');
+        return;
+    }
+    
+    try {
+        auth.showNotification('Загрузка аватарки...', 'info');
+        
+        const storage = firebase.storage();
+        const storageRef = storage.ref();
+        const avatarRef = storageRef.child(`avatars/${session.username}.jpg`);
+        
+        // Загружаем файл
+        await avatarRef.put(file);
+        
+        // Получаем URL
+        const url = await avatarRef.getDownloadURL();
+        
+        // Сохраняем в профиль
+        const db = firebase.firestore();
+        await db.collection('users').doc(session.username).update({
+            avatarUrl: url,
+            avatarUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Обновляем отображение
+        document.getElementById('userAvatar').src = url;
+        
+        auth.showNotification('Аватарка обновлена!', 'success');
+        
+    } catch (error) {
+        console.error('❌ Ошибка загрузки аватарки:', error);
+        auth.showNotification('Ошибка загрузки: ' + error.message, 'error');
+    }
+}
+
+// Загрузка аватарки при загрузке страницы
+async function loadAvatar(username) {
+    try {
+        const db = firebase.firestore();
+        const userDoc = await db.collection('users').doc(username).get();
+        
+        if (userDoc.exists && userDoc.data().avatarUrl) {
+            document.getElementById('userAvatar').src = userDoc.data().avatarUrl;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка загрузки аватарки:', error);
+    }
+}
+
+// Вызываем загрузку аватарки
+window.addEventListener('load', () => {
+    const session = auth.checkSession();
+    if (session) {
+        loadAvatar(session.username);
+    }
+});

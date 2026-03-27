@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Пользователи - чтение всем, запись только себе
+    match /users/{username} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.username == username;
+      allow update: if request.auth != null && request.auth.token.username == username;
+    }
+    
+    // Лицензии - только чтение
+    match /licenses/{licenseKey} {
+      allow read: if request.auth != null;
+      allow write: if false; // Только через admin
+    }
+    
+    // Тикеты - только свои
+    match /tickets/{ticketId} {
+      allow read: if request.auth != null && 
+                    (resource.data.username == request.auth.token.username || 
+                     request.auth.token.role == 'admin' || 
+                     request.auth.token.role == 'helper');
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+                      (resource.data.username == request.auth.token.username || 
+                       request.auth.token.role == 'admin' || 
+                       request.auth.token.role == 'helper');
+    }
+    
+    // ============ MESSENGER RULES ============
+    
+    // Друзья - чтение и создание для авторизованных
+    match /friends/{friendId} {
+      allow read: if request.auth != null && 
+                    request.auth.token.username in resource.data.users;
+      allow create: if request.auth != null && 
+                      request.auth.token.username in request.resource.data.users;
+      allow delete: if request.auth != null && 
+                      request.auth.token.username in resource.data.users;
+    }
+    
+    // Запросы в друзья
+    match /friendRequests/{requestId} {
+      allow read: if request.auth != null && 
+                    (resource.data.from == request.auth.token.username || 
+                     resource.data.to == request.auth.token.username);
+      allow create: if request.auth != null && 
+                      request.resource.data.from == request.auth.token.username;
+      allow delete: if request.auth != null && 
+                      (resource.data.from == request.auth.token.username || 
+                       resource.data.to == request.auth.token.username);
+    }
+    
+    // Сообщения - только участники чата
+    match /messages/{messageId} {
+      allow read: if request.auth != null && 
+                    (resource.data.from == request.auth.token.username || 
+                     resource.data.to == request.auth.token.username);
+      allow create: if request.auth != null && 
+                      request.resource.data.from == request.auth.token.username;
+      allow update: if request.auth != null && 
+                      resource.data.to == request.auth.token.username; // Для пометки прочитанным
+    }
+    
+    // Группы - только участники
+    match /groups/{groupId} {
+      allow read: if request.auth != null && 
+                    request.auth.token.username in resource.data.members;
+      allow create: if request.auth != null && 
+                      request.auth.token.username in request.resource.data.members;
+      allow update: if request.auth != null && 
+                      (resource.data.admin == request.auth.token.username || 
+                       request.auth.token.username in resource.data.members);
+      allow delete: if request.auth != null && 
+                      resource.data.admin == request.auth.token.username;
+    }
+    
+    // Групповые сообщения
+    match /groupMessages/{messageId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+    
+    // Метки (waypoints) - только получатели
+    match /waypoints/{waypointId} {
+      allow read: if request.auth != null && 
+                    request.auth.token.username in resource.data.recipients;
+      allow create: if request.auth != null && 
+                      request.resource.data.from == request.auth.token.username;
+      allow delete: if request.auth != null && 
+                      (resource.data.from == request.auth.token.username || 
+                       request.auth.token.username in resource.data.recipients);
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Аватарки - только свою можно загружать
+    match /avatars/{username}.jpg {
+      allow read: if true; // Все могут читать аватарки
+      allow write: if request.auth != null && request.auth.token.username == username;
+    }
+  }
+}

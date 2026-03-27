@@ -242,6 +242,19 @@
 
             <!-- Информация о пользователе -->
             <div class="user-info-card">
+                <!-- Секция аватарки -->
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="display: inline-block; position: relative;">
+                        <img id="userAvatar" src="assets/logo.png" alt="Avatar" 
+                             style="width: 120px; height: 120px; border-radius: 60px; object-fit: cover; border: 3px solid var(--primary);">
+                        <label for="avatarUpload" style="position: absolute; bottom: 0; right: 0; background: var(--primary); width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid var(--bg);">
+                            <i class="fas fa-camera" style="color: white;"></i>
+                        </label>
+                        <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+                    </div>
+                    <p style="margin-top: 10px; color: var(--text-secondary); font-size: 12px;">Макс 2MB, JPG/PNG</p>
+                </div>
+                
                 <div class="user-info-grid">
                     <div class="info-item">
                         <div class="info-icon">
@@ -371,6 +384,8 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="messenger-system.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
