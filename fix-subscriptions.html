@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Исправление подписок</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: white;
+            padding: 40px;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 { color: #4A90E2; margin-bottom: 30px; text-align: center; }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #4A90E2;
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        button:hover { background: #357ABD; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        #log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .log-item { margin-bottom: 5px; }
+        .log-success { color: #4CAF50; }
+        .log-error { color: #F44336; }
+        .log-info { color: #4A90E2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Исправление подписок</h1>
+        <p style="margin-bottom: 20px; text-align: center; color: rgba(255,255,255,0.7);">
+            Этот скрипт обновит поле subscription.active для всех пользователей с лицензиями
+        </p>
+        <button onclick="fixSubscriptions()">Исправить подписки</button>
+        <div id="log"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const item = document.createElement('div');
+            item.className = `log-item log-${type}`;
+            item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(item);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function getSubscriptionDays(type) {
+            const days = {
+                '1day': 1,
+                '7days': 7,
+                '30days': 30,
+                '90days': 90,
+                'lifetime': 0,
+                'beta': 0
+            };
+            return days[type] || 0;
+        }
+        
+        async function fixSubscriptions() {
+            const button = document.querySelector('button');
+            button.disabled = true;
+            button.textContent = 'Обработка...';
+            
+            document.getElementById('log').innerHTML = '';
+            log('Начало исправления подписок...', 'info');
+            
+            try {
+                // Получаем всех пользователей
+                const usersSnapshot = await db.collection('users').get();
+                log(`Найдено пользователей: ${usersSnapshot.size}`, 'info');
+                
+                // Получаем все лицензии
+                const licensesSnapshot = await db.collection('licenses').where('used', '==', true).get();
+                const licensesByUser = {};
+                
+                licensesSnapshot.forEach(doc => {
+                    const license = doc.data();
+                    if (license.activatedBy) {
+                        if (!licensesByUser[license.activatedBy]) {
+                            licensesByUser[license.activatedBy] = [];
+                        }
+                        licensesByUser[license.activatedBy].push({
+                            key: doc.id,
+                            ...license
+                        });
+                    }
+                });
+                
+                log(`Найдено активированных лицензий: ${licensesSnapshot.size}`, 'info');
+                log('', 'info');
+                
+                let updated = 0;
+                let skipped = 0;
+                let errors = 0;
+                
+                for (const userDoc of usersSnapshot.docs) {
+                    const userData = userDoc.data();
+                    const username = userData.username || userDoc.id;
+                    const userLicenses = licensesByUser[username] || [];
+                    
+                    if (userLicenses.length === 0) {
+                        log(`⏭️ ${username}: нет лицензий`, 'info');
+                        skipped++;
+                        continue;
+                    }
+                    
+                    try {
+                        // Находим самую "сильную" подписку
+                        const priority = { 'lifetime': 5, 'beta': 4, '90days': 3, '30days': 2, '7days': 1, '1day': 0 };
+                        const bestLicense = userLicenses.sort((a, b) => 
+                            (priority[b.type] || 0) - (priority[a.type] || 0)
+                        )[0];
+                        
+                        const updateData = {
+                            subscription: {
+                                active: true,
+                                type: bestLicense.type,
+                                expiresAt: bestLicense.type === 'lifetime' || bestLicense.type === 'beta' ? null :
+                                    new Date(Date.now() + getSubscriptionDays(bestLicense.type) * 24 * 60 * 60 * 1000).toISOString()
+                            }
+                        };
+                        
+                        // Для бета доступа
+                        if (userLicenses.some(l => l.type === 'beta')) {
+                            updateData.betaAccess = true;
+                        }
+                        
+                        await userDoc.ref.update(updateData);
+                        
+                        log(`✅ ${username}: обновлено (${bestLicense.type}, лицензий: ${userLicenses.length})`, 'success');
+                        updated++;
+                        
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                        log(`❌ ${username}: ошибка - ${error.message}`, 'error');
+                        errors++;
+                    }
+                }
+                
+                log('', 'info');
+                log('=== ИТОГО ===', 'info');
+                log(`✅ Обновлено: ${updated}`, 'success');
+                log(`⏭️ Пропущено: ${skipped}`, 'info');
+                log(`❌ Ошибок: ${errors}`, errors > 0 ? 'error' : 'info');
+                log('', 'info');
+                log('✅ ГОТОВО!', 'success');
+                
+                button.textContent = '✅ Исправление завершено';
+                
+            } catch (error) {
+                log(`❌ Критическая ошибка: ${error.message}`, 'error');
+                button.disabled = false;
+                button.textContent = 'Исправить подписки';
+            }
+        }
+    </script>
+</body>
+</html>
