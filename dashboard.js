@@ -221,7 +221,15 @@ window.handleActivation = async function(event) {
         };
         
         // Update user
-        const usersRef = db.collection('users'); const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get(); if (!userSnapshot.empty) { await userSnapshot.docs[0].ref.update({
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get();
+        
+        if (userSnapshot.empty) {
+            auth.showNotification('Пользователь не найден', 'error');
+            return false;
+        }
+        
+        await userSnapshot.docs[0].ref.update({
             licenses: firebase.firestore.FieldValue.arrayUnion(license),
             hwid: hwid
         });
@@ -556,7 +564,15 @@ window.handleActivation = async function(event) {
         };
         
         // Update user
-        const usersRef = db.collection('users'); const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get(); if (!userSnapshot.empty) { await userSnapshot.docs[0].ref.update({
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get();
+        
+        if (userSnapshot.empty) {
+            auth.showNotification('Пользователь не найден', 'error');
+            return false;
+        }
+        
+        await userSnapshot.docs[0].ref.update({
             licenses: firebase.firestore.FieldValue.arrayUnion(license),
             hwid: hwid
         });
