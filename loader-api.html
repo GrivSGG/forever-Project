@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Forever Loader API</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+<script>
+// API для лоадера Forever Client
+// Этот файл обрабатывает запросы от лоадера
+
+const db = firebase.firestore();
+
+// Функция проверки авторизации
+async function checkAuth(username, password) {
+    try {
+        const usersSnapshot = await db.collection('users')
+            .where('username', '==', username)
+            .limit(1)
+            .get();
+
+        if (usersSnapshot.empty) {
+            return {
+                success: false,
+                error: 'USER_NOT_FOUND',
+                message: 'Пользователь не найден'
+            };
+        }
+
+        const userDoc = usersSnapshot.docs[0];
+        const userData = userDoc.data();
+
+        // Проверка пароля (в реальности пароль должен быть захеширован)
+        if (userData.password !== password) {
+            return {
+                success: false,
+                error: 'WRONG_PASSWORD',
+                message: 'Неверный пароль'
+            };
+        }
+
+        // Проверка подписки
+        const hasSubscription = userData.subscription && 
+                               userData.subscription.active === true &&
+                               new Date(userData.subscription.expiresAt) > new Date();
+
+        if (!hasSubscription) {
+            return {
+                success: false,
+                error: 'NO_SUBSCRIPTION',
+                message: 'У вас нет активной подписки'
+            };
+        }
+
+        // Проверка доступа к Beta
+        const hasBetaAccess = userData.betaAccess === true;
+
+        return {
+            success: true,
+            user: {
+                username: userData.username,
+                email: userData.email,
+                subscription: {
+                    active: true,
+                    tier: userData.subscription.tier,
+                    expiresAt: userData.subscription.expiresAt
+                },
+                betaAccess: hasBetaAccess
+            }
+        };
+
+    } catch (error) {
+        console.error('Auth error:', error);
+        return {
+            success: false,
+            error: 'SERVER_ERROR',
+            message: 'Ошибка сервера'
+        };
+    }
+}
+
+// Обработка запросов через URL параметры
+window.addEventListener('DOMContentLoaded', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+
+    if (action === 'auth') {
+        const username = params.get('username');
+        const password = params.get('password');
+
+        if (!username || !password) {
+            document.body.innerHTML = JSON.stringify({
+                success: false,
+                error: 'MISSING_PARAMS',
+                message: 'Отсутствуют параметры'
+            });
+            return;
+        }
+
+        const result = await checkAuth(username, password);
+        document.body.innerHTML = JSON.stringify(result);
+    } else {
+        document.body.innerHTML = JSON.stringify({
+            success: false,
+            error: 'INVALID_ACTION',
+            message: 'Неверное действие'
+        });
+    }
+});
+</script>
+</body>
+</html>
