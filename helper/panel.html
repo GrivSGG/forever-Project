@@ -208,6 +208,8 @@
                 
                 const result = await response.json();
                 
+                console.log('API Response:', result);
+                
                 if (!result.success) {
                     throw new Error(result.message || result.error);
                 }
@@ -217,6 +219,9 @@
                 ticketsData = result.data.tickets;
                 licensesData = result.data.licenses;
                 bansData = result.data.bans;
+                
+                console.log('Users Data:', usersData);
+                console.log('Users Count:', Object.keys(usersData).length);
                 
                 renderData();
             } catch (error) {

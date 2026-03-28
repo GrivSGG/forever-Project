@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Users Structure</title>
+</head>
+<body>
+    <h1>Testing Users Structure</h1>
+    <button onclick="testAPI()">Test API</button>
+    <button onclick="testFirebase()">Test Firebase Direct</button>
+    <pre id="result"></pre>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        async function testAPI() {
+            try {
+                const token = localStorage.getItem('helper_access_token');
+                const response = await fetch('https://forever-project-production-a2fa.up.railway.app/api/helper/get-all-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('result').textContent = 'API Response:\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'API Error:\n' + error.message;
+            }
+        }
+        
+        async function testFirebase() {
+            try {
+                const snapshot = await db.collection('users').limit(3).get();
+                const users = {};
+                
+                snapshot.forEach(doc => {
+                    users[doc.id] = {
+                        docId: doc.id,
+                        data: doc.data()
+                    };
+                });
+                
+                document.getElementById('result').textContent = 'Firebase Direct:\n' + JSON.stringify(users, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Firebase Error:\n' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
