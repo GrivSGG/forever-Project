@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Delete User API</title>
+</head>
+<body>
+    <h1>Test Delete User Endpoint</h1>
+    <button onclick="testEndpoint()">Test Endpoint</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testEndpoint() {
+            const token = localStorage.getItem('helper_access_token');
+            
+            if (!token) {
+                document.getElementById('result').textContent = 'No token found. Please login first.';
+                return;
+            }
+            
+            try {
+                // Test if endpoint exists
+                const response = await fetch('https://forever-project-production-a2fa.up.railway.app/api/helper/delete-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        username: 'test_nonexistent_user'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('result').textContent = 
+                    `Status: ${response.status}\n` +
+                    `Response: ${JSON.stringify(data, null, 2)}`;
+                    
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

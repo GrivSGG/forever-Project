@@ -54,10 +54,19 @@ window.revokeSubscriptionAPI = async function(username, type) {
 };
 
 window.deleteUserAPI = async function(username) {
-    const response = await apiCall(`${API_BASE}/delete-user`, 'POST', {
-        username
-    });
-    return await response.json();
+    console.log('Calling deleteUserAPI with username:', username);
+    try {
+        const response = await apiCall(`${API_BASE}/delete-user`, 'POST', {
+            username
+        });
+        console.log('Delete user response status:', response.status);
+        const data = await response.json();
+        console.log('Delete user response data:', data);
+        return data;
+    } catch (error) {
+        console.error('Delete user API error:', error);
+        throw error;
+    }
 };
 
 window.deleteTicketAPI = async function(ticketId) {
