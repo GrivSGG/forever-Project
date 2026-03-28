@@ -78,6 +78,7 @@
     </div>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="panel-api.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
@@ -96,11 +97,34 @@
             '90days': '90 дней', 'beta': 'Бета', 'lifetime': 'Навсегда'
         };
         
-        // Check access
+        // Check access with code word verification
+        const accessGranted = localStorage.getItem('helper_access_granted');
+        const accessToken = localStorage.getItem('helper_access_token');
+        const accessTime = localStorage.getItem('helper_access_time');
+        
+        if (!accessGranted || !accessToken || !accessTime) {
+            alert('⛔ Требуется двухэтапная авторизация!');
+            window.location.href = 'auth.html';
+            throw new Error('No access token');
+        }
+        
+        // Проверяем что доступ не истек (24 часа)
+        const timePassed = Date.now() - parseInt(accessTime);
+        const hoursPassed = timePassed / (1000 * 60 * 60);
+        
+        if (hoursPassed >= 24) {
+            alert('⛔ Срок доступа истек. Войдите снова.');
+            localStorage.removeItem('helper_access_granted');
+            localStorage.removeItem('helper_access_token');
+            localStorage.removeItem('helper_access_time');
+            window.location.href = 'auth.html';
+            throw new Error('Access expired');
+        }
+        
         const sessionData = localStorage.getItem('forever_session');
         if (!sessionData) {
             alert('⛔ Требуется авторизация!');
-            window.location.href = '../index.html';
+            window.location.href = 'auth.html';
             throw new Error('No session');
         }
         
@@ -146,6 +170,35 @@
         
         firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
+        
+        // Helper function to get access token
+        function getAccessToken() {
+            return localStorage.getItem('helper_access_token');
+        }
+        
+        // Helper function for API calls with token
+        async function apiCall(url, method, body) {
+            const token = getAccessToken();
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: body ? JSON.stringify(body) : undefined
+            });
+            
+            if (response.status === 401) {
+                alert('⛔ Токен доступа истек. Войдите снова.');
+                localStorage.removeItem('helper_access_granted');
+                localStorage.removeItem('helper_access_token');
+                localStorage.removeItem('helper_access_time');
+                window.location.href = 'auth.html';
+                throw new Error('Token expired');
+            }
+            
+            return response;
+        }
         
         window.addEventListener('load', async () => {
             try {
@@ -453,32 +506,25 @@
                 return;
             }
             
-            const keys = [];
             try {
-                for (let i = 0; i < count; i++) {
-                    const key = generateLicenseKey();
-                    await db.collection('licenses').doc(key).set({
-                        type: selectedLicenseType,
-                        paymentType: selectedPaymentType,
-                        used: false,
-                        createdAt: new Date().toISOString(),
-                        createdBy: session.username
-                    });
-                    keys.push(key);
-                }
+                const data = await generateKeysAPI(selectedLicenseType, selectedPaymentType, count, session.username);
                 
-                document.getElementById('generatedKeysContainer').innerHTML = `
-                    <div class="generated-keys">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <strong style="color: #4CAF50;">✅ Сгенерировано: ${count} (${selectedPaymentType === 'free' ? '🎁 Бесплатно' : '💰 Платно'})</strong>
-                            <button class="btn" onclick="copyKeys(\`${keys.join('\\n')}\`)"><i class="fas fa-copy"></i> Копировать</button>
+                if (data.success) {
+                    document.getElementById('generatedKeysContainer').innerHTML = `
+                        <div class="generated-keys">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <strong style="color: #4CAF50;">✅ Сгенерировано: ${data.count} (${selectedPaymentType === 'free' ? '🎁 Бесплатно' : '💰 Платно'})</strong>
+                                <button class="btn" onclick="copyKeys(\`${data.keys.join('\\n')}\`)"><i class="fas fa-copy"></i> Копировать</button>
+                            </div>
+                            ${data.keys.map(key => `<div class="key-item">${key}</div>`).join('')}
                         </div>
-                        ${keys.map(key => `<div class="key-item">${key}</div>`).join('')}
-                    </div>
-                `;
-                
-                alert(`✅ Сгенерировано ${count} ключей`);
-                await loadData();
+                    `;
+                    
+                    alert(`✅ Сгенерировано ${data.count} ключей`);
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (data.message || data.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
