@@ -4,40 +4,106 @@
     <title>Update Firebase Users</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #00D4FF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #00B8E6;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #log {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
 </head>
 <body>
     <h1>Обновление пользователей Firebase</h1>
-    <button onclick="updateAllUsers()" style="padding:10px 20px;font-size:16px;cursor:pointer;">
+    <button onclick="updateAllUsers()" id="updateBtn">
         Обновить всех пользователей
     </button>
-    <div id="log" style="margin-top:20px;font-family:monospace;white-space:pre;"></div>
+    <div id="log"></div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const log = document.getElementById('log');
+        const updateBtn = document.getElementById('updateBtn');
 
-        function addLog(message) {
-            log.textContent += message + '\n';
+        function addLog(message, type = 'info') {
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = message + '\n';
+            log.appendChild(span);
+            log.scrollTop = log.scrollHeight;
             console.log(message);
         }
 
         async function updateAllUsers() {
             try {
-                addLog('Начинаем обновление пользователей...');
+                updateBtn.disabled = true;
+                addLog('🔄 Начинаем обновление пользователей...', 'info');
                 
                 const usersSnapshot = await db.collection('users').get();
-                addLog(`Найдено пользователей: ${usersSnapshot.size}`);
+                addLog(`📊 Найдено пользователей: ${usersSnapshot.size}`, 'info');
+                
+                if (usersSnapshot.empty) {
+                    addLog('⚠️ Нет пользователей в базе данных!', 'error');
+                    updateBtn.disabled = false;
+                    return;
+                }
                 
                 let updated = 0;
+                let skipped = 0;
                 
                 for (const doc of usersSnapshot.docs) {
                     const userData = doc.data();
                     const username = userData.username || doc.id;
                     
                     // Проверяем, нужно ли обновление
-                    if (!userData.subscription || !userData.hasOwnProperty('betaAccess')) {
-                        addLog(`Обновляем пользователя: ${username}`);
+                    const needsUpdate = !userData.subscription || !userData.hasOwnProperty('betaAccess');
+                    
+                    if (needsUpdate) {
+                        addLog(`🔧 Обновляем: ${username}`, 'info');
                         
                         const updateData = {};
                         
@@ -52,25 +118,38 @@
                         
                         // Добавляем betaAccess если его нет
                         if (!userData.hasOwnProperty('betaAccess')) {
-                            updateData.betaAccess = true; // По умолчанию даем всем Beta доступ
+                            updateData.betaAccess = true;
                         }
                         
                         await doc.ref.update(updateData);
                         updated++;
-                        addLog(`✓ Обновлен: ${username}`);
+                        addLog(`✅ Обновлен: ${username}`, 'success');
                     } else {
-                        addLog(`- Пропущен (уже обновлен): ${username}`);
+                        skipped++;
+                        addLog(`⏭️ Пропущен (уже обновлен): ${username}`, 'info');
                     }
                 }
                 
-                addLog(`\nГотово! Обновлено пользователей: ${updated}`);
-                addLog('Теперь можно закрыть эту страницу.');
+                addLog(`\n🎉 Готово!`, 'success');
+                addLog(`✅ Обновлено: ${updated}`, 'success');
+                addLog(`⏭️ Пропущено: ${skipped}`, 'info');
+                addLog(`📊 Всего: ${usersSnapshot.size}`, 'info');
+                addLog('\n✨ Теперь можно закрыть эту страницу и запустить лоадер!', 'success');
                 
             } catch (error) {
-                addLog(`ОШИБКА: ${error.message}`);
-                console.error(error);
+                addLog(`❌ ОШИБКА: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            } finally {
+                updateBtn.disabled = false;
             }
         }
+
+        // Проверяем подключение к Firebase при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            addLog('✅ Firebase инициализирован', 'success');
+            addLog('✅ Firestore подключен', 'success');
+            addLog('ℹ️ Нажмите кнопку для обновления пользователей', 'info');
+        });
     </script>
 </body>
 </html>
