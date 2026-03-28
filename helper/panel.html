@@ -232,11 +232,27 @@
                 
                 renderData();
             } catch (error) {
+                console.error('Load data error:', error);
+                
+                let errorMessage = error.message;
+                let showFixLink = false;
+                
+                if (error.message.includes('permission') || error.message.includes('insufficient')) {
+                    errorMessage = 'Ошибка прав доступа к Firebase';
+                    showFixLink = true;
+                }
+                
                 document.getElementById('content').innerHTML = `
                     <div class="error">
                         <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
-                        Ошибка: ${error.message}
+                        Ошибка: ${errorMessage}
                         <br><br>
+                        ${showFixLink ? `
+                            <a href="fix-permissions.html" style="display: inline-block; padding: 12px 24px; background: #4A90E2; color: white; text-decoration: none; border-radius: 8px; margin-top: 10px;">
+                                🔧 Исправить права доступа
+                            </a>
+                            <br><br>
+                        ` : ''}
                         <button class="btn" onclick="location.reload()">Перезагрузить</button>
                     </div>
                 `;

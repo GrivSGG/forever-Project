@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Исправить права доступа</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            color: #4A90E2;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .step {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4A90E2;
+        }
+        .step h2 {
+            color: #4A90E2;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+            white-space: pre;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #4A90E2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #357ABD;
+        }
+        .warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid #FF9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Исправление прав доступа</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Проблема:</strong> Helper панель показывает "Missing or insufficient permissions"
+            <br><br>
+            <strong>Причина:</strong> Firestore Rules блокируют чтение данных
+        </div>
+        
+        <div class="step">
+            <h2>Шаг 1: Откройте Firebase Console</h2>
+            <p>Перейдите по ссылке:</p>
+            <a href="https://console.firebase.google.com/project/forever-client/firestore/rules" target="_blank" class="btn">
+                Открыть Firebase Console
+            </a>
+        </div>
+        
+        <div class="step">
+            <h2>Шаг 2: Скопируйте правила</h2>
+            <p>Скопируйте эти правила (нажмите на блок чтобы выделить):</p>
+            <div class="code-block" id="rules" onclick="selectText(this)">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /tickets/{ticketId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /licenses/{licenseId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /bans/{banId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /grantHistory/{historyId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}</div>
+            <button class="btn" onclick="copyRules()">📋 Копировать правила</button>
+        </div>
+        
+        <div class="step">
+            <h2>Шаг 3: Вставьте и опубликуйте</h2>
+            <p>1. Удалите старые правила в Firebase Console</p>
+            <p>2. Вставьте скопированные правила</p>
+            <p>3. Нажмите кнопку <strong>"Опубликовать"</strong> (Publish)</p>
+        </div>
+        
+        <div class="step">
+            <h2>Шаг 4: Подождите 1 минуту</h2>
+            <p>Правила применяются не мгновенно. Подождите 1-2 минуты.</p>
+        </div>
+        
+        <div class="step">
+            <h2>Шаг 5: Обновите helper панель</h2>
+            <p>Нажмите F5 или перейдите заново:</p>
+            <a href="auth.html" class="btn">Войти в Helper Panel</a>
+        </div>
+        
+        <div class="success">
+            <strong>✅ После обновления правил:</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Чтение данных будет разрешено</li>
+                <li>Запись только через API (безопасно)</li>
+                <li>Helper панель заработает полностью</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="auth.html" class="btn">← Вернуться к авторизации</a>
+        </div>
+    </div>
+    
+    <script>
+        function selectText(element) {
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        
+        function copyRules() {
+            const rulesText = document.getElementById('rules').textContent;
+            navigator.clipboard.writeText(rulesText).then(() => {
+                alert('✅ Правила скопированы в буфер обмена!');
+            }).catch(() => {
+                alert('❌ Не удалось скопировать. Выделите текст вручную и нажмите Ctrl+C');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -176,8 +176,11 @@
     <script>
         const HELPER_PASSWORD = 'MZFeEgJY';
         const CODE_WORD = 'Windsurf';
+        const MAX_ATTEMPTS = 2;
         
         let currentStep = 1;
+        let passwordAttempts = 0;
+        let codeWordAttempts = 0;
         
         function showError(message) {
             const errorDiv = document.getElementById('error');
@@ -194,6 +197,14 @@
             successDiv.style.display = 'block';
         }
         
+        function blockAccess() {
+            localStorage.setItem('helper_blocked', Date.now().toString());
+            alert('⛔ Превышен лимит попыток! Доступ заблокирован на 1 час.');
+            document.getElementById('helperPassword').disabled = true;
+            document.getElementById('codeWord').disabled = true;
+            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+        
         function checkHelperPassword() {
             const password = document.getElementById('helperPassword').value.trim();
             
@@ -203,7 +214,12 @@
             }
             
             if (password !== HELPER_PASSWORD) {
-                showError('❌ Неверный пароль');
+                passwordAttempts++;
+                showError(`❌ Неверный пароль (попытка ${passwordAttempts}/${MAX_ATTEMPTS})`);
+                
+                if (passwordAttempts >= MAX_ATTEMPTS) {
+                    blockAccess();
+                }
                 return;
             }
             
@@ -229,7 +245,12 @@
             }
             
             if (codeWord !== CODE_WORD) {
-                showError('❌ Неверное кодовое слово');
+                codeWordAttempts++;
+                showError(`❌ Неверное кодовое слово (попытка ${codeWordAttempts}/${MAX_ATTEMPTS})`);
+                
+                if (codeWordAttempts >= MAX_ATTEMPTS) {
+                    blockAccess();
+                }
                 return;
             }
             
@@ -273,18 +294,33 @@
             if (e.key === 'Enter') checkCodeWord();
         });
         
-        // Проверка существующего доступа
+        // Проверка блокировки и существующего доступа
         window.addEventListener('load', () => {
+            // Проверка блокировки
+            const blockedTime = localStorage.getItem('helper_blocked');
+            if (blockedTime) {
+                const timePassed = Date.now() - parseInt(blockedTime);
+                const hoursPassed = timePassed / (1000 * 60 * 60);
+                
+                if (hoursPassed < 1) {
+                    const minutesLeft = Math.ceil((60 - (timePassed / (1000 * 60))));
+                    alert(`⛔ Доступ заблокирован! Осталось ${minutesLeft} минут.`);
+                    blockAccess();
+                    return;
+                } else {
+                    localStorage.removeItem('helper_blocked');
+                }
+            }
+            
+            // Проверка существующего доступа
             const accessGranted = localStorage.getItem('helper_access_granted');
             const accessTime = localStorage.getItem('helper_access_time');
             
-            // Проверяем что доступ не истек (24 часа)
             if (accessGranted === 'true' && accessTime) {
                 const timePassed = Date.now() - parseInt(accessTime);
                 const hoursPassed = timePassed / (1000 * 60 * 60);
                 
                 if (hoursPassed < 24) {
-                    // Доступ еще действителен
                     window.location.href = 'panel.html';
                 }
             }
