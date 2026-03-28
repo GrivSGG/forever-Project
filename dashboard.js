@@ -15,9 +15,11 @@ window.addEventListener('load', async () => {
     // Проверка бана в Firebase
     try {
         const db = firebase.firestore();
-        const userDoc = await db.collection('users').doc(session.username).get();
+        // Ищем пользователя по полю username, а не по document ID
+        const userSnapshot = await db.collection('users').where('username', '==', session.username).limit(1).get();
         
-        if (userDoc.exists) {
+        if (!userSnapshot.empty) {
+            const userDoc = userSnapshot.docs[0];
             const user = userDoc.data();
             
             if (user.banned) {
@@ -54,13 +56,15 @@ window.addEventListener('load', async () => {
 async function loadUserData(username) {
     try {
         const db = firebase.firestore();
-        const userDoc = await db.collection('users').doc(username).get();
+        // Ищем пользователя по полю username
+        const userSnapshot = await db.collection('users').where('username', '==', username).limit(1).get();
         
-        if (!userDoc.exists) {
+        if (userSnapshot.empty) {
             auth.showNotification('Ошибка загрузки данных пользователя', 'error');
             return;
         }
         
+        const userDoc = userSnapshot.docs[0];
         const user = userDoc.data();
         
         // Отображение информации
@@ -217,7 +221,7 @@ window.handleActivation = async function(event) {
         };
         
         // Update user
-        await db.collection('users').doc(session.username).update({
+        const usersRef = db.collection('users'); const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get(); if (!userSnapshot.empty) { await userSnapshot.docs[0].ref.update({
             licenses: firebase.firestore.FieldValue.arrayUnion(license),
             hwid: hwid
         });
@@ -552,7 +556,7 @@ window.handleActivation = async function(event) {
         };
         
         // Update user
-        await db.collection('users').doc(session.username).update({
+        const usersRef = db.collection('users'); const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get(); if (!userSnapshot.empty) { await userSnapshot.docs[0].ref.update({
             licenses: firebase.firestore.FieldValue.arrayUnion(license),
             hwid: hwid
         });
@@ -634,12 +638,17 @@ window.uploadAvatar = async function(event) {
         // Получаем URL
         const url = await avatarRef.getDownloadURL();
         
-        // Сохраняем в профиль
+        // Сохраняем в профиль - ищем по username
         const db = firebase.firestore();
-        await db.collection('users').doc(session.username).update({
-            avatarUrl: url,
-            avatarUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        const usersRef = db.collection('users');
+        const userSnapshot = await usersRef.where('username', '==', session.username).limit(1).get();
+        
+        if (!userSnapshot.empty) {
+            await userSnapshot.docs[0].ref.update({
+                avatarUrl: url,
+                avatarUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
         
         // Обновляем отображение
         document.getElementById('userAvatar').src = url;
@@ -656,10 +665,10 @@ window.uploadAvatar = async function(event) {
 async function loadAvatar(username) {
     try {
         const db = firebase.firestore();
-        const userDoc = await db.collection('users').doc(username).get();
+        const userSnapshot = await db.collection('users').where('username', '==', username).limit(1).get();
         
-        if (userDoc.exists && userDoc.data().avatarUrl) {
-            document.getElementById('userAvatar').src = userDoc.data().avatarUrl;
+        if (!userSnapshot.empty && userSnapshot.docs[0].data().avatarUrl) {
+            document.getElementById('userAvatar').src = userSnapshot.docs[0].data().avatarUrl;
         }
     } catch (error) {
         console.error('❌ Ошибка загрузки аватарки:', error);
