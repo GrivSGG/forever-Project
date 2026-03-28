@@ -802,15 +802,31 @@
         async function deleteUser(username) {
             if (!confirm(`Удалить ${username}?`)) return;
             try {
+                // Временно используем прямой Firebase доступ
+                // TODO: вернуть на API когда Railway заработает
+                const usersRef = db.collection('users');
+                const userSnapshot = await usersRef.where('username', '==', username).limit(1).get();
+                
+                if (userSnapshot.empty) {
+                    alert('❌ Пользователь не найден');
+                    return;
+                }
+                
+                // Используем Firebase Admin SDK через API для обхода правил
                 const result = await deleteUserAPI(username);
                 
                 if (result.success) {
                     alert('✅ Удален');
                     await loadData();
                 } else {
-                    alert('❌ Ошибка: ' + (result.message || result.error));
+                    // Если API не работает, пробуем напрямую
+                    console.warn('API failed, trying direct Firebase access');
+                    await userSnapshot.docs[0].ref.delete();
+                    alert('✅ Удален (через Firebase)');
+                    await loadData();
                 }
             } catch (error) {
+                console.error('Delete user error:', error);
                 alert('❌ Ошибка: ' + error.message);
             }
         }
