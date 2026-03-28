@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Firebase Users</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+</head>
+<body>
+    <h1>Обновление пользователей Firebase</h1>
+    <button onclick="updateAllUsers()" style="padding:10px 20px;font-size:16px;cursor:pointer;">
+        Обновить всех пользователей
+    </button>
+    <div id="log" style="margin-top:20px;font-family:monospace;white-space:pre;"></div>
+
+    <script>
+        const db = firebase.firestore();
+        const log = document.getElementById('log');
+
+        function addLog(message) {
+            log.textContent += message + '\n';
+            console.log(message);
+        }
+
+        async function updateAllUsers() {
+            try {
+                addLog('Начинаем обновление пользователей...');
+                
+                const usersSnapshot = await db.collection('users').get();
+                addLog(`Найдено пользователей: ${usersSnapshot.size}`);
+                
+                let updated = 0;
+                
+                for (const doc of usersSnapshot.docs) {
+                    const userData = doc.data();
+                    const username = userData.username || doc.id;
+                    
+                    // Проверяем, нужно ли обновление
+                    if (!userData.subscription || !userData.hasOwnProperty('betaAccess')) {
+                        addLog(`Обновляем пользователя: ${username}`);
+                        
+                        const updateData = {};
+                        
+                        // Добавляем subscription если его нет
+                        if (!userData.subscription) {
+                            updateData.subscription = {
+                                active: true,
+                                tier: 'premium',
+                                expiresAt: '2025-12-31'
+                            };
+                        }
+                        
+                        // Добавляем betaAccess если его нет
+                        if (!userData.hasOwnProperty('betaAccess')) {
+                            updateData.betaAccess = true; // По умолчанию даем всем Beta доступ
+                        }
+                        
+                        await doc.ref.update(updateData);
+                        updated++;
+                        addLog(`✓ Обновлен: ${username}`);
+                    } else {
+                        addLog(`- Пропущен (уже обновлен): ${username}`);
+                    }
+                }
+                
+                addLog(`\nГотово! Обновлено пользователей: ${updated}`);
+                addLog('Теперь можно закрыть эту страницу.');
+                
+            } catch (error) {
+                addLog(`ОШИБКА: ${error.message}`);
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
