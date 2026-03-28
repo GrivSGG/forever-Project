@@ -561,13 +561,15 @@
             const freeLicenses = userLicenses.filter(l => l.paymentType === 'free');
             const paidLicenses = userLicenses.filter(l => l.paymentType === 'paid' || !l.paymentType);
             
-            // Get grant history
-            const grantHistorySnapshot = await db.collection('grantHistory').where('username', '==', username).get();
-            const grantHistory = [];
-            grantHistorySnapshot.forEach(doc => {
-                grantHistory.push({ id: doc.id, ...doc.data() });
-            });
-            grantHistory.sort((a, b) => new Date(b.grantedAt) - new Date(a.grantedAt));
+            // Get grant history from loaded data
+            const grantHistory = (licensesData.filter(l => l.activatedBy === username && l.grantedDirectly) || [])
+                .map(l => ({
+                    type: l.type,
+                    grantedBy: l.createdBy,
+                    grantedAt: l.activatedAt || l.createdAt,
+                    licenseKey: l.key
+                }))
+                .sort((a, b) => new Date(b.grantedAt) - new Date(a.grantedAt));
             
             // Calculate subscription info
             function getSubscriptionInfo(type) {
@@ -737,36 +739,15 @@
             if (!confirm(`Выдать подписку "${typeNames[type]}" пользователю ${username}?`)) return;
             
             try {
-                const key = generateLicenseKey();
-                const licenseData = {
-                    type: type,
-                    paymentType: 'free',
-                    used: true,
-                    activatedBy: username,
-                    activatedAt: new Date().toISOString(),
-                    createdAt: new Date().toISOString(),
-                    createdBy: session.username,
-                    grantedDirectly: true
-                };
+                const result = await grantSubscriptionAPI(username, type, session.username);
                 
-                await db.collection('licenses').doc(key).set(licenseData);
-                
-                const userLicenses = usersData[username].licenses || [];
-                userLicenses.push(key);
-                await db.collection('users').doc(username).update({ licenses: userLicenses });
-                
-                // Save grant history
-                await db.collection('grantHistory').add({
-                    username: username,
-                    type: type,
-                    grantedBy: session.username,
-                    grantedAt: new Date().toISOString(),
-                    licenseKey: key
-                });
-                
-                alert('✅ Подписка выдана');
-                await loadData();
-                searchUser();
+                if (result.success) {
+                    alert('✅ Подписка выдана');
+                    await loadData();
+                    searchUser();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -782,15 +763,15 @@
                     return;
                 }
                 
-                const license = userLicenses[0];
-                await db.collection('licenses').doc(license.key).delete();
+                const result = await revokeSubscriptionAPI(username, type);
                 
-                const updatedLicenses = (usersData[username].licenses || []).filter(k => k !== license.key);
-                await db.collection('users').doc(username).update({ licenses: updatedLicenses });
-                
-                alert('✅ Подписка изъята');
-                await loadData();
-                searchUser();
+                if (result.success) {
+                    alert('✅ Подписка изъята');
+                    await loadData();
+                    searchUser();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -816,9 +797,14 @@
         async function deleteUser(username) {
             if (!confirm(`Удалить ${username}?`)) return;
             try {
-                await db.collection('users').doc(username).delete();
-                alert('✅ Удален');
-                await loadData();
+                const result = await deleteUserAPI(username);
+                
+                if (result.success) {
+                    alert('✅ Удален');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -827,9 +813,14 @@
         async function deleteTicket(ticketId) {
             if (!confirm('Удалить тикет?')) return;
             try {
-                await db.collection('tickets').doc(ticketId).delete();
-                alert('✅ Удален');
-                await loadData();
+                const result = await deleteTicketAPI(ticketId);
+                
+                if (result.success) {
+                    alert('✅ Удален');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -837,12 +828,14 @@
         
         async function changeTicketStatus(ticketId, newStatus) {
             try {
-                await db.collection('tickets').doc(ticketId).update({
-                    status: newStatus,
-                    updatedAt: new Date().toISOString()
-                });
-                alert('✅ Статус обновлен');
-                await loadData();
+                const result = await changeTicketStatusAPI(ticketId, newStatus);
+                
+                if (result.success) {
+                    alert('✅ Статус обновлен');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -857,18 +850,15 @@
             }
             
             try {
-                await db.collection('tickets').doc(ticketId).update({
-                    responses: firebase.firestore.FieldValue.arrayUnion({
-                        from: session.username,
-                        message: message,
-                        date: new Date().toISOString()
-                    }),
-                    updatedAt: new Date().toISOString()
-                });
+                const result = await respondToTicketAPI(ticketId, message, session.username);
                 
-                input.value = '';
-                alert('✅ Ответ отправлен');
-                await loadData();
+                if (result.success) {
+                    input.value = '';
+                    alert('✅ Ответ отправлен');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -889,29 +879,17 @@
                 return;
             }
             
-            const banUntil = duration === 'permanent' ? 'permanent' : 
-                new Date(Date.now() + parseInt(duration) * 60 * 60 * 1000).toISOString();
-            
             try {
-                await db.collection('users').doc(username).update({
-                    banned: true,
-                    bannedUntil: banUntil,
-                    banReason: reason
-                });
+                const result = await banUserAPI(username, duration, reason, session.username);
                 
-                await db.collection('bans').doc('ban_' + Date.now()).set({
-                    type: 'username',
-                    value: username,
-                    reason: reason,
-                    until: banUntil,
-                    createdAt: new Date().toISOString(),
-                    createdBy: session.username
-                });
-                
-                document.getElementById('banUsername').value = '';
-                document.getElementById('banReason').value = '';
-                alert('✅ Забанен');
-                await loadData();
+                if (result.success) {
+                    document.getElementById('banUsername').value = '';
+                    document.getElementById('banReason').value = '';
+                    alert('✅ Забанен');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -927,19 +905,16 @@
             }
             
             try {
-                await db.collection('bans').doc('ban_ip_' + Date.now()).set({
-                    type: 'ip',
-                    value: ip,
-                    reason: reason,
-                    until: 'permanent',
-                    createdAt: new Date().toISOString(),
-                    createdBy: session.username
-                });
+                const result = await banIPAPI(ip, reason, session.username);
                 
-                document.getElementById('banIP').value = '';
-                document.getElementById('banIPReason').value = '';
-                alert('✅ IP забанен');
-                await loadData();
+                if (result.success) {
+                    document.getElementById('banIP').value = '';
+                    document.getElementById('banIPReason').value = '';
+                    alert('✅ IP забанен');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
+                }
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
@@ -948,21 +923,14 @@
         async function unban(banId) {
             if (!confirm('Снять бан?')) return;
             try {
-                const banDoc = await db.collection('bans').doc(banId).get();
-                const ban = banDoc.data();
+                const result = await unbanAPI(banId);
                 
-                await db.collection('bans').doc(banId).delete();
-                
-                if (ban.type === 'username') {
-                    await db.collection('users').doc(ban.value).update({
-                        banned: false,
-                        bannedUntil: null,
-                        banReason: null
-                    });
+                if (result.success) {
+                    alert('✅ Разбанен');
+                    await loadData();
+                } else {
+                    alert('❌ Ошибка: ' + (result.message || result.error));
                 }
-                
-                alert('✅ Разбанен');
-                await loadData();
             } catch (error) {
                 alert('❌ Ошибка: ' + error.message);
             }
