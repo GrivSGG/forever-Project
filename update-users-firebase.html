@@ -63,9 +63,17 @@
             appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // Initialize Firebase FIRST
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            alert('Ошибка инициализации Firebase: ' + error.message);
+        }
+
         const log = document.getElementById('log');
         const updateBtn = document.getElementById('updateBtn');
 
