@@ -488,5 +488,25 @@
         }
     </script>
     <script src="auth.js?v=7"></script>
+    
+    <script>
+        // Проверка авторизации и изменение кнопок навигации
+        window.addEventListener('load', () => {
+            const session = auth.checkSession();
+            const navButtons = document.querySelector('.nav-buttons');
+            
+            if (session && navButtons) {
+                // Пользователь авторизован - показываем кнопку личного кабинета
+                navButtons.innerHTML = `
+                    <button class="btn-nav" onclick="window.location.href='dashboard.html'">
+                        <i class="fas fa-user-circle"></i> ${session.username}
+                    </button>
+                    <button class="btn-primary-nav" onclick="auth.logout()">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>
