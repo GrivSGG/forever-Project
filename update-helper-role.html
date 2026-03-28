@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Helper Role</title>
+</head>
+<body>
+    <h1>Обновление роли Helper</h1>
+    <button onclick="updateRole()">Обновить роль Helper</button>
+    <div id="result"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbZLa2MBIIMSto6exJhIH1Vv2POzhakRM",
+            authDomain: "forever-client.firebaseapp.com",
+            projectId: "forever-client",
+            storageBucket: "forever-client.firebasestorage.app",
+            messagingSenderId: "639676123653",
+            appId: "1:639676123653:web:dd28cb5cc5ae537020326c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function updateRole() {
+            try {
+                // Обновляем роль для admin
+                await db.collection('users').doc('admin').update({
+                    role: 'admin'
+                });
+                
+                // Обновляем роль для Helper
+                await db.collection('users').doc('Helper').update({
+                    role: 'helper'
+                });
+                
+                document.getElementById('result').innerHTML = `
+                    <p style="color: green;">✅ Роли обновлены:</p>
+                    <ul>
+                        <li>admin → role: admin</li>
+                        <li>Helper → role: helper</li>
+                    </ul>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <p style="color: red;">❌ Ошибка: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
